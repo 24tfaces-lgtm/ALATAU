@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ru">
 <head>
@@ -169,6 +170,7 @@
           <button class="navBtn blue" id="btnNext">Далее →</button>
         </div>
         <div class="stageRight">
+          <button class="navBtn outline" id="btnLang">RU → KZ</button>
           <div class="stagePills" id="stagePills"></div>
         </div>
       </div>
@@ -215,8 +217,11 @@
   const fmt = (n)=> new Intl.NumberFormat('ru-RU').format(n);
   const DELIVERY_CITY_LIST = 'Актау, Алматы, Кокшетау, Туркестан, Шымкент, Астана';
   const NEW_PRODUCTS_PROMO = `2+1 ${fmt(34000)} ₸ • 3+1 ${fmt(40000)} ₸ • 5+1 ${fmt(45000)} ₸`;
+  const NEW_PRODUCTS_PROMO_KZ = `2+1 ${fmt(34000)} ₸ • 3+1 ${fmt(40000)} ₸ • 5+1 ${fmt(45000)} ₸`;
   const NEW_PRODUCTS_DELIVERY_NOTE = `Курьер: только по городам — ${DELIVERY_CITY_LIST} • Почта: по всему Казахстану`;
+  const NEW_PRODUCTS_DELIVERY_NOTE_KZ = `Курьер: тек мына қалаларға — ${DELIVERY_CITY_LIST} • Пошта: бүкіл Қазақстан бойынша`;
   const NEW_PRODUCTS_PILL_HTML = `Акция: ${NEW_PRODUCTS_PROMO} • Курьер: только по городам — <span class="cityListRed">${DELIVERY_CITY_LIST}</span> • Почта: по всему Казахстану`;
+  const NEW_PRODUCTS_PILL_HTML_KZ = `Акция: ${NEW_PRODUCTS_PROMO_KZ} • Курьер: тек мына қалаларға — <span class="cityListRed">${DELIVERY_CITY_LIST}</span> • Пошта: бүкіл Қазақстан бойынша`;
 
   const state = { sectionId:'hello', activeKey:null, search:'', lang:'ru', objCategory:'cost' };
 
@@ -235,13 +240,14 @@
     }
   };
 
-  function ui(key, ...args){ const v = UI.ru[key]; return typeof v === 'function' ? v(...args) : v; }
+  function ui(key, ...args){ const pack = UI[state.lang] || UI.ru; const v = (pack && pack[key] !== undefined) ? pack[key] : UI.ru[key]; return typeof v === 'function' ? v(...args) : v; }
 
   function tokens(){
-    const moneyWord = 'тенге';
+    const isKz = state.lang === 'kz';
+    const moneyWord = isKz ? 'теңге' : 'тенге';
     return {
-      client: document.getElementById('clientName').value.trim() || 'Имя клиента',
-      op: document.getElementById('opName').value.trim() || 'Имя Отчество оператора',
+      client: document.getElementById('clientName').value.trim() || (isKz ? 'Клиент' : 'Имя клиента'),
+      op: document.getElementById('opName').value.trim() || (isKz ? 'Оператор' : 'Имя Отчество оператора'),
       priceBase: `${fmt(PRICING.base)} ${moneyWord}`,
       benefit: `${fmt(PRICING.benefit)} ${moneyWord}`,
       priceFinal: `${fmt(PRICING.final)} ${moneyWord}`
@@ -271,8 +277,8 @@
     return s.replaceAll('\n', '<br>');
   }
 
-  function localizedText(v){ if (typeof v === 'string') return v; if (v && typeof v === 'object') return v.ru || ''; return ''; }
-  function localizedLabel(btn){ return btn.label || ''; }
+  function localizedText(v){ if (typeof v === 'string') return v; if (v && typeof v === 'object') return v[state.lang] || v.ru || v.kz || ''; return ''; }
+  function localizedLabel(btn){ if (!btn) return ''; return state.lang === 'kz' ? (btn.label_kz || btn.label || '') : (btn.label || btn.label_kz || ''); }
 
   /* ==========================
      БАЗОВЫЕ ТЕКСТЫ И СЦЕНАРИИ
@@ -283,6 +289,8 @@
   // ВСТАВЬТЕ СВОЙ ТЕКСТ ПО ОФОРМЛЕНИЮ И ВЫКУПУ ЗДЕСЬ
   // Меняйте только тексты ниже — кнопки и структура уже привязаны.
   // Для юридических формулировок используйте только согласованный текст вашей компании.
+  // ДЛЯ КАЗАХСКОГО ЯЗЫКА МОЖНО ИСПОЛЬЗОВАТЬ ФОРМАТ:
+  // order_summary: { ru:'Русский текст', kz:'Қазақша мәтін' }
   // ==============================================
 
   order_summary: `Имя клиента, давайте коротко подытожим заказ. Вы выбрали: (укажите товар / набор), срок применения: (если применимо), количество упаковок: (укажите), итоговая сумма к оплате при получении: (укажите) тенге. Адрес доставки: (укажите), получатель: (сверьте ФИО). Обязательно ещё раз сверьте способ доставки, адрес и контактные данные.`,
@@ -337,7 +345,7 @@
     }
   };
 
-  function T(key){ return TEXT.ru[key] || ''; }
+  function T(key){ const pack = TEXT[state.lang] || TEXT.ru; return pack[key] || TEXT.ru[key] || (TEXT.kz && TEXT.kz[key]) || ''; }
 
   /* =====================================================
      ВСТАВЬТЕ СВОИ ТЕКСТЫ ОТРАБОТОК ЗДЕСЬ
@@ -349,6 +357,8 @@
   // ВСТАВЬТЕ СВОИ ТЕКСТЫ ОТРАБОТОК ЗДЕСЬ
   // Меняйте только тексты ниже — кнопки и логика подтянутся автоматически.
   // Ключ слева = конкретная кнопка возражения в интерфейсе.
+  // ДЛЯ КАЗАХСКОГО ЯЗЫКА ИСПОЛЬЗУЙТЕ ФОРМАТ:
+  // cost_no_money_health: { ru:'Русский текст', kz:'Қазақша мәтін' }
   // ================================
 
   cost_no_money_health: { ru:'ВСТАВЬТЕ СВОЙ ТЕКСТ: Нет денег (категория Здоровье)' },
@@ -411,6 +421,12 @@ ${DELIVERY_POST}`;
      Меняйте только значения ниже — карточки товаров автоматически подтянут текст в презентацию.
      Если длинный текст не нужен, оставьте короткую пометку или пустую строку. Для фото товара используйте блок PRODUCT_IMAGE_URLS ниже.
      ===================================================== */
+  // =====================================================
+  // ВСТАВЬТЕ СВОИ ПРЕЗЕНТАЦИИ ТОВАРОВ ЗДЕСЬ
+  // Можно оставить строку, если нужен только русский текст.
+  // Для двуязычного режима используйте формат:
+  // cardiodoc: { ru:'Русский текст', kz:'Қазақша мәтін' }
+  // =====================================================
   const CUSTOM_PRODUCT_DETAILS = {
   cardiodoc: 'Линия «сердце / давление». Здесь можно вставить ваш полный расширенный скрипт по Cardiodoc.',
   kardiokontrol: 'Линия «сердце / давление». Здесь можно вставить ваш полный расширенный скрипт по Кардио Контроль.',
@@ -475,27 +491,73 @@ ${DELIVERY_POST}`;
     return `https://drive.google.com/uc?export=view&id=${v}`;
   }
 
-  function makeProductCard({ label, color, direction, pack, usage, promo, delivery, detailsKey='', note='', imgUrl='', promoInHeader=false }){
-    const details = detailsKey && CUSTOM_PRODUCT_DETAILS[detailsKey]
-      ? `\n\nПРЕЗЕНТАЦИЯ (вставьте свой текст ниже):\n${CUSTOM_PRODUCT_DETAILS[detailsKey]}`
-      : '';
+  // =====================================================
+  // Если захотите перевести карточки товаров на казахский язык,
+  // в makeProductCard можно дописывать поля:
+  // labelKz, directionKz, packKz, usageKz, promoKz, deliveryKz, noteKz
+  // а в CUSTOM_PRODUCT_DETAILS можно хранить объект { ru:'...', kz:'...' }.
+  // =====================================================
+  function langPair(value){
+    if (typeof value === 'string') return { ru:value, kz:value };
+    if (value && typeof value === 'object') return { ru:value.ru || value.kz || '', kz:value.kz || value.ru || '' };
+    return { ru:'', kz:'' };
+  }
 
-    const promoText = promoInHeader ? NEW_PRODUCTS_PROMO : promo;
+  function joinLocalizedParts(...parts){
+    const ru = [];
+    const kz = [];
+    parts.forEach(part => {
+      const pair = langPair(part);
+      if (pair.ru) ru.push(pair.ru);
+      if (pair.kz) kz.push(pair.kz);
+    });
+    return { ru: ru.join('\n\n'), kz: kz.join('\n\n') };
+  }
+
+  function makeProductCard({ label, labelKz='', color, direction, directionKz='', pack, packKz='', usage, usageKz='', promo, promoKz='', delivery, deliveryKz='', detailsKey='', note='', noteKz='', imgUrl='', promoInHeader=false }){
+    const detailsSource = detailsKey ? CUSTOM_PRODUCT_DETAILS[detailsKey] : '';
+    const detailsPair = langPair(detailsSource);
+    const detailsRu = detailsPair.ru ? `
+
+ПРЕЗЕНТАЦИЯ (вставьте свой текст ниже):
+${detailsPair.ru}` : '';
+    const detailsKz = detailsPair.kz ? `
+
+ӨНІМ ТАНЫСТЫРЫЛЫМЫ (қазақша мәтінді осы жерге қойыңыз):
+${detailsPair.kz}` : '';
+
+    const promoTextRu = promoInHeader ? NEW_PRODUCTS_PROMO : promo;
+    const promoTextKz = promoInHeader ? NEW_PRODUCTS_PROMO_KZ : (promoKz || promo);
 
     return {
       label,
+      label_kz: labelKz || label,
       color,
       img: driveImg(imgUrl),
       pillText: '',
-      pillHtml: promoInHeader ? NEW_PRODUCTS_PILL_HTML : '',
+      pillTextKz: '',
+      pillHtmlRu: promoInHeader ? NEW_PRODUCTS_PILL_HTML : '',
+      pillHtmlKz: promoInHeader ? NEW_PRODUCTS_PILL_HTML_KZ : '',
       priceTablePromo: promoInHeader ? NEW_PRODUCTS_PROMO : '',
       priceTablePrice: promoInHeader ? `${fmt(34000)} ₸` : '',
-      text: `ТОВАР: ${label}
+      text: {
+        ru: `ТОВАР: ${label}
 НАПРАВЛЕНИЕ: ${direction}
 1 УПАКОВКА: ${pack}
 ПРИЁМ: ${usage}
-АКЦИЯ/УСЛОВИЯ: ${promoText}
-ДОСТАВКА: ${delivery}${note ? `\n\nЗаметка: ${note}`:''}${details}`
+АКЦИЯ/УСЛОВИЯ: ${promoTextRu}
+ДОСТАВКА: ${delivery}${note ? `
+
+Заметка: ${note}`:''}${detailsRu}`,
+        kz: `ТАУАР: ${labelKz || label}
+БАҒЫТЫ: ${directionKz || direction}
+1 ҚАПТАМА: ${packKz || pack}
+ҚАБЫЛДАУ: ${usageKz || usage}
+АКЦИЯ/ШАРТ: ${promoTextKz}
+ЖЕТКІЗУ: ${deliveryKz || delivery}${(noteKz || note) ? `
+
+Ескерту: ${noteKz || note}`:''}${detailsKz}`
+      }
     };
   }
 
@@ -648,6 +710,8 @@ const PROD = (catId)=> PRODUCT_CATEGORIES.find(x=>x.id===catId)?.items || [];
   // Меняйте только тексты ниже — кнопки в блоке «Приветствие»
   // автоматически подхватят ваши формулировки.
   // Ключ слева = конкретная кнопка возражения на приветствии.
+  // ДЛЯ КАЗАХСКОГО ЯЗЫКА МОЖНО ПИСАТЬ ТАК:
+  // call_source: { ru:'Русский текст', kz:'Қазақша мәтін' }
   // =====================================================
 
   call_source: `{Имя клиента}, я звоню Вам из консультационного отдела центра «Здоровье +». Моя задача — коротко объяснить условия программы, ответить на Ваши вопросы и, если это будет актуально, помочь подобрать подходящий вариант. Сейчас буквально в двух словах расскажу, чтобы Вам было понятно, по какому вопросу звонок.`,
@@ -710,12 +774,10 @@ const PROD = (catId)=> PRODUCT_CATEGORIES.find(x=>x.id===catId)?.items || [];
         needsMain:[
           { label:'Выявление потребностей (общее)', label_kz:'Қажеттілікті анықтау (жалпы)', color:'blue', text:{ ru:T('needs_general'), kz:TEXT.kz.needs_general } },
           { label:'Если «у меня всё хорошо»', label_kz:'Егер «бәрі жақсы» десе', color:'green', text:{ ru:T('needs_if_ok'), kz:TEXT.kz.needs_if_ok } },
-          { label:'Если коронавируса НЕ было', label_kz:'Егер коронавирус БОЛМАҒАН болса', color:'gray', text:{ ru:T('needs_no_covid'), kz:TEXT.kz.needs_no_covid } },
           { label:'Если категорически отказывается', label_kz:'Егер қатаң бас тартса', color:'red', text:{ ru:T('needs_hard_refusal'), kz:TEXT.kz.needs_hard_refusal } }
         ],
         needsTransitions:[
           { label:'Переход → Натуральные средства', label_kz:'Өту → Табиғи өнімдер', color:'green', goto:'health', text:{ ru:T('health_intro'), kz:TEXT.kz.health_intro } },
-          { label:'Переход → Товары', label_kz:'Өту → Тауарлар', color:'gray', goto:'products', text:{ ru:'Хорошо. Тогда подберём продукт под Ваш запрос.', kz:'Жақсы. Онда сіздің сұранысыңызға сай өнім таңдайық.' } }
         ]
       }
     },
@@ -828,14 +890,8 @@ const PROD = (catId)=> PRODUCT_CATEGORIES.find(x=>x.id===catId)?.items || [];
       `,
       buttonsByGrid:{
         checkoutMain:[
-          { label:'Итоги заказа (универсально)', color:'blue', long:true, text:`${CUSTOM_CHECKOUT_FLOW.order_summary}
-
-${CUSTOM_CHECKOUT_FLOW.delivery_note}` },
-          { label:'Оферта и подтверждение', color:'blue', long:true, text:`${CUSTOM_CHECKOUT_FLOW.legal_terms}
-
-${CUSTOM_CHECKOUT_FLOW.confirm_buyout}
-
-${CUSTOM_CHECKOUT_FLOW.close_order}` }
+          { label:'Итоги заказа (универсально)', color:'blue', long:true, text: joinLocalizedParts(CUSTOM_CHECKOUT_FLOW.order_summary, CUSTOM_CHECKOUT_FLOW.delivery_note) },
+          { label:'Оферта и подтверждение', color:'blue', long:true, text: joinLocalizedParts(CUSTOM_CHECKOUT_FLOW.legal_terms, CUSTOM_CHECKOUT_FLOW.confirm_buyout, CUSTOM_CHECKOUT_FLOW.close_order) }
         ],
         checkoutMailOffers:[
           { label:'Почта: предложить ВИНИРЫ', color:'gray', text:CUSTOM_CHECKOUT_FLOW.mail_offer_viniry },
@@ -851,11 +907,7 @@ ${CUSTOM_CHECKOUT_FLOW.close_order}` }
       `,
       buttonsByGrid:{
         buyoutMain:[
-          { label:'Работа на выкуп / повторный заказ / VIP', color:'purple', long:true, text:`${CUSTOM_CHECKOUT_FLOW.buyout_soft}
-
-${CUSTOM_CHECKOUT_FLOW.buyout_post_note}
-
-${CUSTOM_CHECKOUT_FLOW.buyout_vip}` }
+          { label:'Работа на выкуп / повторный заказ / VIP', color:'purple', long:true, text: joinLocalizedParts(CUSTOM_CHECKOUT_FLOW.buyout_soft, CUSTOM_CHECKOUT_FLOW.buyout_post_note, CUSTOM_CHECKOUT_FLOW.buyout_vip) }
         ]
       }
     },
@@ -990,6 +1042,7 @@ ${CUSTOM_CHECKOUT_FLOW.buyout_vip}` }
   const quickAreaEl = document.getElementById('quickArea');
   const btnPrevEl = document.getElementById('btnPrev');
   const btnNextEl = document.getElementById('btnNext');
+  const btnLangEl = document.getElementById('btnLang');
     const sbTitleEl = document.getElementById('sbTitle');
   const lblClientEl = document.getElementById('lblClient');
   const lblOpEl = document.getElementById('lblOp');
@@ -1004,7 +1057,7 @@ ${CUSTOM_CHECKOUT_FLOW.buyout_vip}` }
 
   function scrollToReplica(){ replicaBoxEl.scrollIntoView({ behavior:'smooth', block:'start' }); }
   function currentSection(){ return SECTIONS.find(x=>x.id===state.sectionId) || SECTIONS[0]; }
-  function sectionTitle(s){ return s.title_ru || s.title || ''; }
+  function sectionTitle(s){ if (!s) return ''; return state.lang === 'kz' ? (s.title_kz || s.title_ru || s.title || '') : (s.title_ru || s.title_kz || s.title || ''); }
 
   const replicaImgEl = document.getElementById('replicaImg');
 
@@ -1022,14 +1075,24 @@ ${CUSTOM_CHECKOUT_FLOW.buyout_vip}` }
   }
 
   function setPricePillForButton(btnMeta){
-    if (btnMeta && (btnMeta.pillHtml || btnMeta.pillText)){
-      if (btnMeta.pillHtml){
-        pricePillEl.innerHTML = btnMeta.pillHtml;
-      } else {
-        pricePillEl.textContent = btnMeta.pillText;
+    if (btnMeta){
+      const pillHtml = state.lang === 'kz'
+        ? (btnMeta.pillHtmlKz || btnMeta.pillHtmlRu || btnMeta.pillHtml || '')
+        : (btnMeta.pillHtmlRu || btnMeta.pillHtml || btnMeta.pillHtmlKz || '');
+      const pillText = state.lang === 'kz'
+        ? (btnMeta.pillTextKz || btnMeta.pillText || '')
+        : (btnMeta.pillText || btnMeta.pillTextKz || '');
+      if (pillHtml || pillText){
+        if (pillHtml){
+          pricePillEl.innerHTML = pillHtml;
+        } else {
+          pricePillEl.textContent = pillText;
+        }
+        pricePillEl.title = state.lang === 'kz'
+          ? `Жеткізуді тексеріңіз: курьер тек ${DELIVERY_CITY_LIST} қалаларына барады, пошта бүкіл Қазақстан бойынша қолжетімді.`
+          : `Проверьте доставку: курьер работает только по городам — ${DELIVERY_CITY_LIST}, почта доступна по всему Казахстану.`;
+        return;
       }
-      pricePillEl.title = `Проверьте доставку: курьер работает только по городам — ${DELIVERY_CITY_LIST}, почта доступна по всему Казахстану.`;
-      return;
     }
     setDefaultPricePill();
   }
@@ -1045,7 +1108,7 @@ ${CUSTOM_CHECKOUT_FLOW.buyout_vip}` }
   function goToSection(id){ if (!FLOW.includes(id)) return; state.sectionId = id; state.activeKey = null; render(); }
 
   function renderTopUI(){
-    document.documentElement.lang = 'ru';
+    document.documentElement.lang = state.lang === 'kz' ? 'kk' : 'ru';
     sbTitleEl.textContent = ui('appMenu');
     lblClientEl.textContent = ui('clientLabel');
     lblOpEl.textContent = ui('opLabel');
@@ -1054,6 +1117,7 @@ ${CUSTOM_CHECKOUT_FLOW.buyout_vip}` }
     document.getElementById('search').placeholder = ui('searchPh');
     btnPrevEl.textContent = ui('prev');
     btnNextEl.textContent = ui('next');
+    if (btnLangEl) btnLangEl.textContent = state.lang === 'ru' ? ui('langBtn') : ui('langBtnBack');
     replicaLabelEl.textContent = ui('replicaLabel');
     if (!state.activeKey) replicaMetaEl.textContent = ui('replicaHint');
     setDefaultPricePill();
@@ -1084,14 +1148,14 @@ ${CUSTOM_CHECKOUT_FLOW.buyout_vip}` }
         PRODUCT_CATEGORIES.forEach(cat=>{
           const catDiv = document.createElement('div');
           catDiv.className = 'cat';
-          catDiv.textContent = cat.title_ru || cat.title || ''; 
+          catDiv.textContent = state.lang === 'kz' ? (cat.title_kz || cat.title_ru || cat.title || '') : (cat.title_ru || cat.title_kz || cat.title || ''); 
           menuEl.appendChild(catDiv);
 
           cat.items.forEach(p=>{
             const sub = document.createElement('a');
             sub.href = '#';
             sub.className = 'sub';
-            sub.textContent = p.label;
+            sub.textContent = state.lang === 'kz' ? (p.label_kz || p.label || '') : (p.label || p.label_kz || '');
             sub.addEventListener('click', (e)=>{
               e.preventDefault();
               state.sectionId = 'products';
@@ -1249,6 +1313,13 @@ ${CUSTOM_CHECKOUT_FLOW.buyout_vip}` }
   document.getElementById('clientName').addEventListener('input', ()=>{ refreshReplicaFromActive(); renderSection(); });
   document.getElementById('opName').addEventListener('input', ()=>{ refreshReplicaFromActive(); renderSection(); });
   document.getElementById('search').addEventListener('input', (e)=>{ state.search = e.target.value; state.activeKey = null; renderSection(); });
+  if (btnLangEl) {
+    btnLangEl.addEventListener('click', ()=>{
+      state.lang = state.lang === 'ru' ? 'kz' : 'ru';
+      render();
+      refreshReplicaFromActive();
+    });
+  }
 
   render();
 </script>
