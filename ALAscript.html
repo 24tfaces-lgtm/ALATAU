@@ -214,6 +214,19 @@
 
 <script>
   const PRICING = { base: 44000, benefit: 10000, final: 34000 };
+
+  // =====================================================
+  // РЕДАКТИРУЕМЫЕ БЛОКИ С ТЕКСТАМИ И ДАННЫМИ
+  // 1) CUSTOM_CHECKOUT_FLOW        → тексты оформления / оферты / выкупа
+  // 2) CUSTOM_OBJECTIONS           → возражения после цены
+  // 3) CUSTOM_GREETING_OBJECTIONS  → возражения на приветствии
+  // 4) CUSTOM_PRODUCT_DETAILS      → презентации товаров
+  // 5) PRODUCT_IMAGE_URLS          → ссылки / ID фото товаров
+  // 6) UI                          → подписи интерфейса RU / KZ
+  // 7) TEXT                        → базовые реплики по этапам RU / KZ
+  // 8) PRODUCT_CATEGORIES          → названия категорий и карточки товаров
+  // Для казахского текста используйте формат: { ru:'...', kz:'...' }
+  // =====================================================
   const fmt = (n)=> new Intl.NumberFormat('ru-RU').format(n);
   const DELIVERY_CITY_LIST = 'Актау, Алматы, Кокшетау, Туркестан, Шымкент, Астана';
   const NEW_PRODUCTS_PROMO = `2+1 ${fmt(34000)} ₸ • 3+1 ${fmt(40000)} ₸ • 5+1 ${fmt(45000)} ₸`;
@@ -225,6 +238,10 @@
 
   const state = { sectionId:'hello', activeKey:null, search:'', lang:'ru', objCategory:'cost' };
 
+  // =====================================================
+  // ПОДПИСИ ИНТЕРФЕЙСА (кнопки, лейблы, поиск)
+  // Если нужно изменить русский / казахский интерфейс — редактируйте объект UI ниже.
+  // =====================================================
   const UI = {
     ru: {
       appMenu:'Скрипт • меню', clientLabel:'Имя клиента', opLabel:'Имя оператора', clientPh:'Напр.: Айгуль', opPh:'Напр.: Алина',
@@ -316,6 +333,11 @@
   buyout_vip: `Для клиентов, которые получают заказ без задержек, у нас обычно действуют более выгодные условия на повторное обращение. При следующем заказе можно дополнительно уточнить доступную скидку или бонус.`
 };
 
+  // =====================================================
+  // БАЗОВЫЕ РЕПЛИКИ ПО ЭТАПАМ
+  // Если нужно подставить свои тексты для этапов — редактируйте объект TEXT ниже.
+  // Для KZ используйте поле kz рядом с ru.
+  // =====================================================
   const TEXT = {
     ru: {
       hello_start:`Добрый день, это {Имя клиента}?\n\nЭто {Имя оператора}, старший эксперт центра «Здоровье +». На Ваше имя одобрена льготная программа «Здоровая нация». Буквально 2 минуты — задам пару уточняющих вопросов и подберу подходящий вариант.`,
@@ -440,7 +462,8 @@ ${DELIVERY_POST}`;
   stroinica: 'Линия «похудение». Здесь можно вставить ваш полный текст по Стройнице.',
   antenny: 'Подарок на почту. Здесь можно вставить ваш полный текст по антеннам.',
   viniry: 'Подарок на почту. Здесь можно вставить ваш полный текст по винирам.',
-  golubitox: 'Линия «зрение». Здесь можно вставить ваш полный текст по Голубитоксу.'
+  golubitox: 'Линия «зрение». Здесь можно вставить ваш полный текст по Голубитоксу.',
+  pantogematogen: 'Линия «мужское здоровье». Здесь можно вставить ваш полный текст по Пантогематогену.'
 };
 
   // ================================
@@ -465,6 +488,7 @@ ${DELIVERY_POST}`;
     marine_collagen: '',
     sachel: '',
     golubitox: '',
+    pantogematogen: '',
     yastreb: '',
     stroinica: '',
     she: '',
@@ -514,7 +538,7 @@ ${DELIVERY_POST}`;
     return { ru: ru.join('\n\n'), kz: kz.join('\n\n') };
   }
 
-  function makeProductCard({ label, labelKz='', color, direction, directionKz='', pack, packKz='', usage, usageKz='', promo, promoKz='', delivery, deliveryKz='', detailsKey='', note='', noteKz='', imgUrl='', promoInHeader=false }){
+  function makeProductCard({ label, labelKz='', color, direction, directionKz='', pack, packKz='', usage, usageKz='', promo, promoKz='', delivery, deliveryKz='', detailsKey='', note='', noteKz='', imgUrl='', promoInHeader=false, pillTextRu='', pillTextKz='', tableCondition='', tableConditionKz='', tablePrice='', tablePriceKz='' }){
     const detailsSource = detailsKey ? CUSTOM_PRODUCT_DETAILS[detailsKey] : '';
     const detailsPair = langPair(detailsSource);
     const detailsRu = detailsPair.ru ? `
@@ -534,12 +558,16 @@ ${detailsPair.kz}` : '';
       label_kz: labelKz || label,
       color,
       img: driveImg(imgUrl),
-      pillText: '',
-      pillTextKz: '',
+      pillText: pillTextRu || '',
+      pillTextKz: pillTextKz || '',
       pillHtmlRu: promoInHeader ? NEW_PRODUCTS_PILL_HTML : '',
       pillHtmlKz: promoInHeader ? NEW_PRODUCTS_PILL_HTML_KZ : '',
       priceTablePromo: promoInHeader ? NEW_PRODUCTS_PROMO : '',
       priceTablePrice: promoInHeader ? `${fmt(34000)} ₸` : '',
+      tableCondition: tableCondition || '',
+      tableConditionKz: tableConditionKz || '',
+      tablePrice: tablePrice || '',
+      tablePriceKz: tablePriceKz || '',
       text: {
         ru: `ТОВАР: ${label}
 НАПРАВЛЕНИЕ: ${direction}
@@ -561,65 +589,72 @@ ${detailsPair.kz}` : '';
     };
   }
 
+  // =====================================================
+  // КАТЕГОРИИ И КАРТОЧКИ ТОВАРОВ
+  // Здесь можно менять: названия категорий, русские и казахские подписи, состав карточек.
+  // Для категорий используйте поля title_ru / title_kz.
+  // Для карточек используйте label / labelKz и остальные поля makeProductCard.
+  // =====================================================
   const PRODUCT_CATEGORIES = [
   {
-    id:'gifts', title_ru:'ПОДАРОК НА ПОЧТУ', items:[
+    id:'gifts', title_ru:'ПОДАРОК НА ПОЧТУ', title_kz:'ПОШТА АРҚЫЛЫ СЫЙЛЫҚ', items:[
       makeProductCard({ label:'АНТЕННЫ', color:'gray', direction:'Подарок / почтовое вложение', pack:'—', usage:'—', promo:'—', delivery:DELIVERY_MAIL, detailsKey:'antenny', imgUrl: PRODUCT_IMAGE_URLS.antenny, note:'Подарочная позиция для почтового заказа.' }),
       makeProductCard({ label:'ВИНИРЫ', color:'gray', direction:'Подарок / почтовое вложение', pack:'—', usage:'—', promo:'—', delivery:DELIVERY_MAIL, detailsKey:'viniry', imgUrl: PRODUCT_IMAGE_URLS.viniry, note:'Подарочная позиция для почтового заказа.' })
     ]
   },
   {
-    id:'men', title_ru:'МУЖСКОЕ ЗДОРОВЬЕ', items:[
-      makeProductCard({ label:'РЕПРОСТАНОЛ', imgUrl: PRODUCT_IMAGE_URLS.reprostanol, color:'green', direction:'Мужское здоровье', pack:'20 саше по 5 г', usage:'По 1 саше 2 раза в день за 30 минут до еды', promo:'Льготная цена рассчитывается по звонку', delivery:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.' }),
-      makeProductCard({ label:'ALPHA METHOD', imgUrl: PRODUCT_IMAGE_URLS.alpha_method, color:'green', direction:'Мужское здоровье', pack:'60 капсул по 500 мг', usage:'По 1 капсуле 2 раза в день за 30 минут до еды', promo:'Льготная цена рассчитывается по звонку', delivery:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.' }),
-      makeProductCard({ label:'TITAN GEL', imgUrl: PRODUCT_IMAGE_URLS.titan_gel, color:'green', direction:'Мужское здоровье', pack:'50 мл', usage:'Наружное применение 4–5 раз в неделю', promo:'Льготная цена рассчитывается по звонку', delivery:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.' }),
-      makeProductCard({ label:'LIBIDEX', color:'green', direction:'Мужское здоровье', pack:'10 капсул', usage:'Принимать 1 раз в день вне зависимости от пищи', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, detailsKey:'libidex', imgUrl: PRODUCT_IMAGE_URLS.libidex , promoInHeader:true }),
-      makeProductCard({ label:'ВУЛКАН', color:'green', direction:'Мужское здоровье', pack:'10 таблеток', usage:'По 1 шт. за 30 минут до сексуальной активности', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, detailsKey:'vulkan', imgUrl: PRODUCT_IMAGE_URLS.vulkan , promoInHeader:true })
+    id:'men', title_ru:'МУЖСКОЕ ЗДОРОВЬЕ', title_kz:'ЕРЛЕР ДЕНСАУЛЫҒЫ', items:[
+      makeProductCard({ label:'РЕПРОСТАНОЛ', labelKz:'РЕПРОСТАНОЛ', imgUrl: PRODUCT_IMAGE_URLS.reprostanol, color:'green', direction:'Мужское здоровье', directionKz:'Ерлер денсаулығы', pack:'20 саше по 5 г', packKz:'20 саше по 5 г', usage:'По 1 саше 2 раза в день за 30 минут до еды', usageKz:'Тамақтан 30 минут бұрын күніне 2 рет 1 сашеден', promo:'Льготная цена рассчитывается по звонку', promoKz:'Жеңілдік бағасы қоңырау кезінде есептеледі', delivery:DELIVERY_MAIN, deliveryKz:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.', noteKz:'Ағымдағы скрипттегі базалық карточка.' }),
+      makeProductCard({ label:'ALPHA METHOD', labelKz:'ALPHA METHOD', imgUrl: PRODUCT_IMAGE_URLS.alpha_method, color:'green', direction:'Мужское здоровье', directionKz:'Ерлер денсаулығы', pack:'60 капсул по 500 мг', packKz:'60 капсула по 500 мг', usage:'По 1 капсуле 2 раза в день за 30 минут до еды', usageKz:'Тамақтан 30 минут бұрын күніне 2 рет 1 капсуладан', promo:'Льготная цена рассчитывается по звонку', promoKz:'Жеңілдік бағасы қоңырау кезінде есептеледі', delivery:DELIVERY_MAIN, deliveryKz:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.', noteKz:'Ағымдағы скрипттегі базалық карточка.' }),
+      makeProductCard({ label:'ПАНТОГЕМАТОГЕН', labelKz:'ПАНТОГЕМАТОГЕН', imgUrl: PRODUCT_IMAGE_URLS.pantogematogen, color:'green', direction:'Мужское здоровье', directionKz:'Ерлер денсаулығы', pack:'50 мл (сироп)', packKz:'50 мл (сироп)', usage:'По 1 мерной ложке (5 мл) 2 раза в день', usageKz:'Күніне 2 рет 1 өлшеуіш қасықтан (5 мл)', promo:'Льготная цена рассчитывается по звонку', promoKz:'Жеңілдік бағасы қоңырау кезінде есептеледі', delivery:DELIVERY_MAIN, deliveryKz:DELIVERY_MAIN, detailsKey:'pantogematogen', note:'Базовая карточка из текущего скрипта.', noteKz:'Ағымдағы скрипттегі базалық карточка.' }),
+      makeProductCard({ label:'TITAN GEL', labelKz:'TITAN GEL', imgUrl: PRODUCT_IMAGE_URLS.titan_gel, color:'green', direction:'Мужское здоровье', directionKz:'Ерлер денсаулығы', pack:'50 мл', packKz:'50 мл', usage:'Наружное применение 4–5 раз в неделю', usageKz:'Аптасына 4–5 рет сыртқа қолдану', promo:'Льготная цена рассчитывается по звонку', promoKz:'Жеңілдік бағасы қоңырау кезінде есептеледі', delivery:DELIVERY_MAIN, deliveryKz:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.', noteKz:'Ағымдағы скрипттегі базалық карточка.' }),
+      makeProductCard({ label:'LIBIDEX', labelKz:'LIBIDEX', color:'green', direction:'Мужское здоровье', directionKz:'Ерлер денсаулығы', pack:'10 капсул', packKz:'10 капсула', usage:'Принимать 1 раз в день вне зависимости от пищи', usageKz:'Тамаққа байланыссыз күніне 1 рет қабылдау', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', promoKz:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, deliveryKz:DELIVERY_MAIN, detailsKey:'libidex', imgUrl: PRODUCT_IMAGE_URLS.libidex , promoInHeader:true }),
+      makeProductCard({ label:'ВУЛКАН', labelKz:'ВУЛКАН', color:'green', direction:'Мужское здоровье', directionKz:'Ерлер денсаулығы', pack:'10 таблеток', packKz:'10 таблетка', usage:'По 1 шт. за 30 минут до сексуальной активности', usageKz:'Жыныстық белсенділікке 30 минут қалғанда 1 данадан', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', promoKz:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, deliveryKz:DELIVERY_MAIN, detailsKey:'vulkan', imgUrl: PRODUCT_IMAGE_URLS.vulkan , promoInHeader:true })
     ]
   },
   {
-    id:'joints', title_ru:'СУСТАВЫ', items:[
+    id:'joints', title_ru:'СУСТАВЫ', title_kz:'БУЫНДАР', items:[
       makeProductCard({ label:'СУСТАВИТИН', imgUrl: PRODUCT_IMAGE_URLS.sustavitin, color:'blue', direction:'Суставы', pack:'30 мл', usage:'Наносить 2 раза в день на проблемную область', promo:'Льготная цена рассчитывается по звонку', delivery:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.' }),
       makeProductCard({ label:'IMOSTEON', imgUrl: PRODUCT_IMAGE_URLS.imosteon, color:'blue', direction:'Суставы', pack:'50 мл', usage:'Наносить 2 раза в день на проблемную область', promo:'Льготная цена рассчитывается по звонку', delivery:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.' }),
       makeProductCard({ label:'МОНАСТЫРСКАЯ ТРАВНИЦА', color:'blue', direction:'Суставы', pack:'30 мл (мазь)', usage:'2 раза в день наносить на проблемные зоны массажными движениями', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, detailsKey:'monastyrskaya', imgUrl: PRODUCT_IMAGE_URLS.monastyrskaya , promoInHeader:true })
     ]
   },
   {
-    id:'women', title_ru:'ЖЕНСКОЕ ЗДОРОВЬЕ / КРАСОТА', items:[
+    id:'women', title_ru:'ЖЕНСКОЕ ЗДОРОВЬЕ / КРАСОТА', title_kz:'ӘЙЕЛДЕР ДЕНСАУЛЫҒЫ / СҰЛУЛЫҚ', items:[
       makeProductCard({ label:'LUCEM+', imgUrl: PRODUCT_IMAGE_URLS.lucem, color:'purple', direction:'Женское здоровье / самочувствие', pack:'50 мл', usage:'По 1 мерной ложке 2 раза в день за 30 минут до еды', promo:'Льготная цена рассчитывается по звонку', delivery:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.' }),
       makeProductCard({ label:'МОРСКОЙ КОЛЛАГЕН', imgUrl: PRODUCT_IMAGE_URLS.marine_collagen, color:'purple', direction:'Красота / суставы', pack:'21 стик по 3 г', usage:'По 1 стику 3 раза в день за 30 минут до еды', promo:'Льготная цена рассчитывается по звонку', delivery:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.' }),
       makeProductCard({ label:'SACHEL', imgUrl: PRODUCT_IMAGE_URLS.sachel, color:'purple', direction:'Косметический уход', pack:'Набор', usage:'По схеме конкретного средства из набора', promo:'Льготная цена рассчитывается по звонку', delivery:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.' })
     ]
   },
   {
-    id:'vision', title_ru:'ЗРЕНИЕ', items:[
-      makeProductCard({ label:'ГОЛУБИТОКС', color:'purple', direction:'Зрение / поддержка', pack:'30 мл', usage:'По 10 капель в 50 мл воды 3 раза в день за 30 минут до еды', promo:'Льготная цена рассчитывается по звонку', delivery:DELIVERY_MAIN, detailsKey:'golubitox', imgUrl: PRODUCT_IMAGE_URLS.golubitox , promoInHeader:true }),
+    id:'vision', title_ru:'ЗРЕНИЕ', title_kz:'КӨРУ', items:[
+      makeProductCard({ label:'ГОЛУБИТОКС', labelKz:'ГОЛУБИТОКС', color:'purple', direction:'Зрение / поддержка', directionKz:'Көру / қолдау', pack:'30 мл', packKz:'30 мл', usage:'По 10 капель в 50 мл воды 3 раза в день за 30 минут до еды', usageKz:'Тамақтан 30 минут бұрын 50 мл суға 10 тамшыдан күніне 3 рет', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', promoKz:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, deliveryKz:DELIVERY_MAIN, detailsKey:'golubitox', imgUrl: PRODUCT_IMAGE_URLS.golubitox, pillTextRu:'Акция: 2+1 34 000 ₸ • 3+1 40 000 ₸ • 5+1 45 000 ₸', pillTextKz:'Акция: 2+1 34 000 ₸ • 3+1 40 000 ₸ • 5+1 45 000 ₸', tableCondition:'Обычная акция', tableConditionKz:'Қалыпты акция', tablePrice:'2+1 34 000 ₸ • 3+1 40 000 ₸ • 5+1 45 000 ₸', tablePriceKz:'2+1 34 000 ₸ • 3+1 40 000 ₸ • 5+1 45 000 ₸' }),
       makeProductCard({ label:'ЯСТРЕБ', color:'purple', direction:'Для глаз / зрение', pack:'50 мл', usage:'По 1 чайной ложке, разбавленной в воде, кофе или чае, 2–3 раза в день', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, detailsKey:'yastreb', imgUrl: PRODUCT_IMAGE_URLS.yastreb , promoInHeader:true })
     ]
   },
   {
-    id:'weightloss', title_ru:'ПОХУДЕНИЕ', items:[
+    id:'weightloss', title_ru:'ПОХУДЕНИЕ', title_kz:'АРЫҚТАУ', items:[
       makeProductCard({ label:'СТРОЙНИЦА', color:'blue', direction:'Похудение / контроль веса', pack:'1 шт.', usage:'Вместо крышки вставить помпу на 0,5 бутылки воды', promo:'5+1 45000', delivery:DELIVERY_MAIN, detailsKey:'stroinica', imgUrl: PRODUCT_IMAGE_URLS.stroinica , promoInHeader:true })
     ]
   },
   {
-    id:'cleanse', title_ru:'ОЧИЩЕНИЕ ОРГАНИЗМА', items:[
+    id:'cleanse', title_ru:'ОЧИЩЕНИЕ ОРГАНИЗМА', title_kz:'АҒЗАНЫ ТАЗАЛАУ', items:[
       makeProductCard({ label:'SHE (ШИ)', color:'blue', direction:'Очищение организма', pack:'5 штук', usage:'Принимать утром натощак 1 раз в день', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, detailsKey:'she', imgUrl: PRODUCT_IMAGE_URLS.she , promoInHeader:true }),
       makeProductCard({ label:'ОМЕГА 3', imgUrl: PRODUCT_IMAGE_URLS.omega3, color:'blue', direction:'Базовая поддержка', pack:'90 капсул по 1350 мг', usage:'По 3 капсулы в день во время еды', promo:'Льготная цена рассчитывается по звонку', delivery:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.' })
     ]
   },
   {
-    id:'smoking', title_ru:'БОРЬБА С ЗАВИСИМОСТЬЮ ОТ КУРЕНИЯ', items:[
+    id:'smoking', title_ru:'БОРЬБА С ЗАВИСИМОСТЬЮ ОТ КУРЕНИЯ', title_kz:'ТЕМЕКІГЕ ТӘУЕЛДІЛІКПЕН КҮРЕС', items:[
       makeProductCard({ label:'SMOKING LOCK', color:'blue', direction:'Борьба с зависимостью от курения', pack:'20 мл', usage:'10 капель в 50 мл воды 2 раза в день за 30 минут до еды', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, detailsKey:'smoking_lock', imgUrl: PRODUCT_IMAGE_URLS.smoking_lock , promoInHeader:true })
     ]
   },
   {
-    id:'diabetes', title_ru:'САХАРНЫЙ ДИАБЕТ', items:[
+    id:'diabetes', title_ru:'САХАРНЫЙ ДИАБЕТ', title_kz:'ҚАНТ ДИАБЕТІ', items:[
       makeProductCard({ label:'DIABOX', color:'blue', direction:'Сахарный диабет / обмен веществ', pack:'5 шт.', usage:'По 1 шт., растворённой в стакане воды, за 30 минут до еды', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, detailsKey:'diabox', imgUrl: PRODUCT_IMAGE_URLS.diabox , promoInHeader:true })
     ]
   },
   {
-    id:'cardio', title_ru:'КАРДИО', items:[
+    id:'cardio', title_ru:'КАРДИО', title_kz:'КАРДИО', items:[
       makeProductCard({ label:'КАРДИОЦИТИЛ', imgUrl: PRODUCT_IMAGE_URLS.cardiocytill, color:'blue', direction:'Сердце / сосуды', pack:'30 капсул по 500 мг', usage:'По 1 капсуле 1 раз в день', promo:'Льготная цена рассчитывается по звонку', delivery:DELIVERY_MAIN, note:'Базовая карточка из текущего скрипта.' }),
       makeProductCard({ label:'CARDIODOC', color:'blue', direction:'Сердце / давление', pack:'45 капсул', usage:'По 1 капсуле 3 раза в день за 30 минут до еды', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, detailsKey:'cardiodoc', imgUrl: PRODUCT_IMAGE_URLS.cardiodoc , promoInHeader:true }),
       makeProductCard({ label:'КАРДИО КОНТРОЛЬ', color:'blue', direction:'Сердце / давление', pack:'14 монодоз', usage:'1 раз в день по 1 монодозе за 30 минут до еды', promo:'2+1 34000 • 3+1 40000 • 5+1 45000', delivery:DELIVERY_MAIN, detailsKey:'kardiokontrol', imgUrl: PRODUCT_IMAGE_URLS.kardiokontrol , promoInHeader:true })
@@ -642,65 +677,94 @@ const PRODUCT_GRID_BY_CAT = {
 
 const PROD = (catId)=> PRODUCT_CATEGORIES.find(x=>x.id===catId)?.items || [];
 
-  function buildPricePromoTableHtml(){
+  // =====================================================
+  // ТАБЛИЦЫ «ЦЕНА / ОФОРМЛЕНИЕ»
+  // Заголовки и подсказки ниже автоматически переключаются между RU / KZ.
+  // Если нужно поменять подписи таблиц — редактируйте эту функцию.
+  // =====================================================
+  function buildPricePromoTableHtml(lang='ru'){
+    const isKz = lang === 'kz';
+    const titleProduct = isKz ? 'Өнім атауы' : 'Название продукта';
+    const titlePromo = isKz ? 'Акция' : 'Акция';
+    const titlePrice = isKz ? 'Баға' : 'Цена';
+    const titleCondition = isKz ? 'Шарт' : 'Условие';
+    const promoTableTitle = isKz ? 'Жаңа тауарлар (акциялар)' : 'Новые товары (акции)';
+    const standardTableTitle = isKz ? 'Стандартты тауарлар' : 'Стандартные товары';
+    const standardConditionText = isKz ? 'Стандартты жеңілдік' : 'Стандартная льгота';
+    const standardPriceText = isKz
+      ? `Баға: ${fmt(PRICING.base)} ₸ • Жеңілдік: ${fmt(PRICING.benefit)} ₸ • Қорытынды: ${fmt(PRICING.final)} ₸`
+      : `Цена: ${fmt(PRICING.base)} ₸ • Льгота: ${fmt(PRICING.benefit)} ₸ • Итог: ${fmt(PRICING.final)} ₸`;
+
     const newRows = PRODUCT_CATEGORIES
       .flatMap(cat => (cat.items || []).filter(item => item.priceTablePromo))
-      .map(item => `
+      .map(item => {
+        const label = isKz ? (item.label_kz || item.label) : item.label;
+        return `
         <tr>
-          <td>${escapeHtml(item.label)}</td>
+          <td>${escapeHtml(label)}</td>
           <td>${escapeHtml(item.priceTablePromo)}</td>
           <td>${escapeHtml(item.priceTablePrice)}</td>
-        </tr>`).join('');
+        </tr>`;
+      }).join('');
 
     const standardRows = PRODUCT_CATEGORIES
       .filter(cat => cat.id !== 'gifts')
       .flatMap(cat => (cat.items || []).filter(item => !item.priceTablePromo))
-      .map(item => `
+      .map(item => {
+        const label = isKz ? (item.label_kz || item.label) : item.label;
+        const conditionText = isKz
+          ? (item.tableConditionKz || item.tableCondition || standardConditionText)
+          : (item.tableCondition || item.tableConditionKz || standardConditionText);
+        const priceText = isKz
+          ? (item.tablePriceKz || item.tablePrice || standardPriceText)
+          : (item.tablePrice || item.tablePriceKz || standardPriceText);
+        return `
         <tr>
-          <td>${escapeHtml(item.label)}</td>
-          <td>Стандартная льгота</td>
-          <td>Цена: ${fmt(PRICING.base)} ₸ • Льгота: ${fmt(PRICING.benefit)} ₸ • Итог: ${fmt(PRICING.final)} ₸</td>
-        </tr>`).join('');
+          <td>${escapeHtml(label)}</td>
+          <td>${escapeHtml(conditionText)}</td>
+          <td>${escapeHtml(priceText)}</td>
+        </tr>`;
+      }).join('');
+
+    const promoAttention = isKz
+      ? `Жаңа тауарлар үшін жеткізуді міндетті түрде тексеріңіз: курьерлік жеткізу тек мына қалаларда қолжетімді — <span class="cityListRed">${escapeHtml(DELIVERY_CITY_LIST)}</span>. Пошта арқылы жеткізу Қазақстан бойынша қолжетімді.`
+      : `Для новых товаров обязательно проверяйте доставку: курьерская доставка доступна только по городам — <span class="cityListRed">${escapeHtml(DELIVERY_CITY_LIST)}</span>. Почтовая доставка доступна по всему Казахстану.`;
+
+    const standardAttention = isKz
+      ? `Стандартты тауарлар үшін 2+1 / 3+1 / 5+1 акциясын қолданбаймыз. Мұнда базалық схема қолданылады: баға ${fmt(PRICING.base)} ₸, жеңілдік ${fmt(PRICING.benefit)} ₸, қорытынды ${fmt(PRICING.final)} ₸. Стандартты тауарларды жаңа акциялық позициялармен шатастырмаңыз.`
+      : `Для стандартных товаров не используем акцию 2+1 / 3+1 / 5+1. Здесь действует базовая схема: цена ${fmt(PRICING.base)} ₸, льгота ${fmt(PRICING.benefit)} ₸, итог ${fmt(PRICING.final)} ₸. Не путайте стандартные товары с новыми акционными позициями.`;
 
     return `
       <div class="priceTableWrap">
-        <div class="priceTableTitle">Новые товары (акции)</div>
+        <div class="priceTableTitle">${promoTableTitle}</div>
         <table class="priceTable">
           <thead>
             <tr>
-              <th>Название продукта</th>
-              <th>Акция</th>
-              <th>Цена</th>
+              <th>${titleProduct}</th>
+              <th>${titlePromo}</th>
+              <th>${titlePrice}</th>
             </tr>
           </thead>
           <tbody>${newRows}</tbody>
         </table>
-        <div class="priceAttention">
-          Для новых товаров обязательно проверяйте доставку: курьерская доставка доступна только по городам — <span class="cityListRed">${escapeHtml(DELIVERY_CITY_LIST)}</span>.
-          Почтовая доставка доступна по всему Казахстану.
-        </div>
+        <div class="priceAttention">${promoAttention}</div>
       </div>
       <div class="priceTableWrap">
-        <div class="priceTableTitle">Стандартные товары</div>
+        <div class="priceTableTitle">${standardTableTitle}</div>
         <table class="priceTable">
           <thead>
             <tr>
-              <th>Название продукта</th>
-              <th>Условие</th>
-              <th>Цена</th>
+              <th>${titleProduct}</th>
+              <th>${titleCondition}</th>
+              <th>${titlePrice}</th>
             </tr>
           </thead>
           <tbody>${standardRows}</tbody>
         </table>
-        <div class="priceAttention">
-          Для стандартных товаров не используем акцию 2+1 / 3+1 / 5+1. Здесь действует базовая схема:
-          цена ${fmt(PRICING.base)} ₸, льгота ${fmt(PRICING.benefit)} ₸, итог ${fmt(PRICING.final)} ₸.
-          Не путайте стандартные товары с новыми акционными позициями.
-        </div>
+        <div class="priceAttention">${standardAttention}</div>
       </div>`;
   }
 
-  const PRICE_PROMO_TABLE_HTML = buildPricePromoTableHtml();
 
 
 
@@ -738,7 +802,7 @@ const PROD = (catId)=> PRODUCT_CATEGORIES.find(x=>x.id===catId)?.items || [];
       id:'hello', title_ru:'ПРИВЕТСТВИЕ', title_kz:'СӘЛЕМДЕСУ',
       contentHtml:{
         ru:`<div class="textBlock">Старт звонка.</div><div class="btnGrid" data-grid="helloMain"></div><div class="banner red">ВОЗРАЖЕНИЯ НА ПРИВЕТСТВИИ</div><div class="textBlock">Быстрые ответы на первые вопросы и сомнения клиента. Сами тексты для этих кнопок меняются в блоке CUSTOM_GREETING_OBJECTIONS.</div><div class="btnGrid" data-grid="helloObj"></div>`,
-        kz:`<div class="textBlock">Старт звонка.</div><div class="btnGrid" data-grid="helloMain"></div><div class="banner red">ВОЗРАЖЕНИЯ НА ПРИВЕТСТВИИ</div><div class="textBlock">Быстрые ответы на первые вопросы и сомнения клиента. Сами тексты для этих кнопок меняются в блоке CUSTOM_GREETING_OBJECTIONS.</div><div class="btnGrid" data-grid="helloObj"></div>`
+        kz:`<div class="textBlock">Қоңырауды бастау.</div><div class="btnGrid" data-grid="helloMain"></div><div class="banner red">СӘЛЕМДЕСУ КЕЗІНДЕГІ ҚАРСЫЛЫҚТАР</div><div class="textBlock">Клиенттің алғашқы сұрақтары мен күмәндарына қысқа жауаптар. Бұл батырмалардағы мәтін CUSTOM_GREETING_OBJECTIONS блогында өзгереді.</div><div class="btnGrid" data-grid="helloObj"></div>`
       },
       buttonsByGrid:{
         helloMain:[
@@ -860,15 +924,15 @@ const PROD = (catId)=> PRODUCT_CATEGORIES.find(x=>x.id===catId)?.items || [];
     prodDiabetes: PROD('diabetes'),
     prodCardio: PROD('cardio'),
     prodTransitions:[
-      { label:'Переход → Цена / оформление', color:'green', goto:'price', text:{ ru:'Отлично, {Имя клиента}. Тогда фиксируем льготу и переходим к оформлению.' } }
+      { label:'Переход → Цена / оформление', label_kz:'Өту → Баға / рәсімдеу', color:'green', goto:'price', text:{ ru:'Отлично, {Имя клиента}. Тогда фиксируем льготу и переходим к оформлению.', kz:'Керемет, {Имя клиента}. Онда жеңілдікті бекітіп, рәсімдеуге өтеміз.' } }
     ]
   }
 },
     {
       id:'price', title_ru:'ЦЕНА / ОФОРМЛЕНИЕ', title_kz:'БАҒА / РӘСІМДЕУ',
       contentHtml:{
-        ru:`${PRICE_PROMO_TABLE_HTML}<div class="btnGrid" data-grid="priceMain"></div><div class="btnGrid" data-grid="priceTransitions"></div>`,
-        kz:`<div class="banner teal">Шарттарды айтамыз: жеңілдік → мекенжай → жеткізу → төлем алғаннан кейін.</div><div class="btnGrid" data-grid="priceMain"></div><div class="btnGrid" data-grid="priceTransitions"></div>`
+        ru:`<div id="priceTablesMount"></div><div class="btnGrid" data-grid="priceMain"></div><div class="btnGrid" data-grid="priceTransitions"></div>`,
+        kz:`<div id="priceTablesMount"></div><div class="btnGrid" data-grid="priceMain"></div><div class="btnGrid" data-grid="priceTransitions"></div>`
       },
       buttonsByGrid:{
         priceMain:[
@@ -876,43 +940,43 @@ const PROD = (catId)=> PRODUCT_CATEGORIES.find(x=>x.id===catId)?.items || [];
           { label:'Переход к адресу', label_kz:'Мекенжайды нақтылау', color:'blue', text:{ ru:T('price_address'), kz:TEXT.kz.price_address } }
         ],
         priceTransitions:[
-          { label:'Перейти к итогам и оферте', color:'blue', goto:'checkout', text:'Отлично. Теперь подытожим заказ, сверим доставку и подтверждение.' },
+          { label:'Перейти к итогам и оферте', label_kz:'Өту → Қорытынды және оферта', color:'blue', goto:'checkout', text:{ ru:'Отлично. Теперь подытожим заказ, сверим доставку и подтверждение.', kz:'Жақсы. Енді тапсырысты қорытындылап, жеткізу мен растауды тексерейік.' } },
           { label:'Открыть возражения (после цены)', label_kz:'Қарсылықтар (бағадан кейін)', color:'red', goto:'objAfterPrice', text:{ ru:'Понимаю. Откроем блок возражений.', kz:'Түсінемін. Қарсылықтар блогын ашайық.' } }
         ]
       }
     },
 
         {
-      id:'checkout', title_ru:'ИТОГИ И ОФЕРТА',
+      id:'checkout', title_ru:'ИТОГИ И ОФЕРТА', title_kz:'ҚОРЫТЫНДЫ ЖӘНЕ ОФЕРТА',
       contentHtml:`
         <div class="btnGrid" data-grid="checkoutMain"></div>
         <div class="btnGrid" data-grid="checkoutMailOffers"></div>
       `,
       buttonsByGrid:{
         checkoutMain:[
-          { label:'Итоги заказа (универсально)', color:'blue', long:true, text: joinLocalizedParts(CUSTOM_CHECKOUT_FLOW.order_summary, CUSTOM_CHECKOUT_FLOW.delivery_note) },
-          { label:'Оферта и подтверждение', color:'blue', long:true, text: joinLocalizedParts(CUSTOM_CHECKOUT_FLOW.legal_terms, CUSTOM_CHECKOUT_FLOW.confirm_buyout, CUSTOM_CHECKOUT_FLOW.close_order) }
+          { label:'Итоги заказа (универсально)', label_kz:'Тапсырыс қорытындысы (әмбебап)', color:'blue', long:true, text: joinLocalizedParts(CUSTOM_CHECKOUT_FLOW.order_summary, CUSTOM_CHECKOUT_FLOW.delivery_note) },
+          { label:'Оферта и подтверждение', label_kz:'Оферта және растау', color:'blue', long:true, text: joinLocalizedParts(CUSTOM_CHECKOUT_FLOW.legal_terms, CUSTOM_CHECKOUT_FLOW.confirm_buyout, CUSTOM_CHECKOUT_FLOW.close_order) }
         ],
         checkoutMailOffers:[
-          { label:'Почта: предложить ВИНИРЫ', color:'gray', text:CUSTOM_CHECKOUT_FLOW.mail_offer_viniry },
-          { label:'Почта: предложить АНТЕННЫ', color:'gray', text:CUSTOM_CHECKOUT_FLOW.mail_offer_antenny },
-          { label:'Почта: предложить ВИНИРЫ + АНТЕННЫ', color:'gray', long:true, text:CUSTOM_CHECKOUT_FLOW.mail_offer_both }
+          { label:'Почта: предложить ВИНИРЫ', label_kz:'Пошта: ВИНИРЫ ұсыну', color:'gray', text:CUSTOM_CHECKOUT_FLOW.mail_offer_viniry },
+          { label:'Почта: предложить АНТЕННЫ', label_kz:'Пошта: АНТЕННЫ ұсыну', color:'gray', text:CUSTOM_CHECKOUT_FLOW.mail_offer_antenny },
+          { label:'Почта: предложить ВИНИРЫ + АНТЕННЫ', label_kz:'Пошта: ВИНИРЫ + АНТЕННЫ ұсыну', color:'gray', long:true, text:CUSTOM_CHECKOUT_FLOW.mail_offer_both }
         ]
       }
     },
         {
-      id:'buyout', title_ru:'РАБОТА НА ВЫКУП / ПОВТОРНЫЙ ЗАКАЗ / VIP',
+      id:'buyout', title_ru:'РАБОТА НА ВЫКУП / ПОВТОРНЫЙ ЗАКАЗ / VIP', title_kz:'САТЫП АЛУҒА ЖҰМЫС / ҚАЙТАЛАМА ТАПСЫРЫС / VIP',
       contentHtml:`
         <div class="btnGrid" data-grid="buyoutMain"></div>
       `,
       buttonsByGrid:{
         buyoutMain:[
-          { label:'Работа на выкуп / повторный заказ / VIP', color:'purple', long:true, text: joinLocalizedParts(CUSTOM_CHECKOUT_FLOW.buyout_soft, CUSTOM_CHECKOUT_FLOW.buyout_post_note, CUSTOM_CHECKOUT_FLOW.buyout_vip) }
+          { label:'Работа на выкуп / повторный заказ / VIP', label_kz:'Сатып алуға жұмыс / қайталама тапсырыс / VIP', color:'purple', long:true, text: joinLocalizedParts(CUSTOM_CHECKOUT_FLOW.buyout_soft, CUSTOM_CHECKOUT_FLOW.buyout_post_note, CUSTOM_CHECKOUT_FLOW.buyout_vip) }
         ]
       }
     },
     {
-      id:'objAfterPrice', title_ru:'ВОЗРАЖЕНИЯ ПОСЛЕ ЦЕНЫ',
+      id:'objAfterPrice', title_ru:'ВОЗРАЖЕНИЯ ПОСЛЕ ЦЕНЫ', title_kz:'БАҒАДАН КЕЙІНГІ ҚАРСЫЛЫҚТАР',
   contentHtml:{
     ru:`
       <div class="objSwitchboard">
@@ -970,61 +1034,118 @@ const PROD = (catId)=> PRODUCT_CATEGORIES.find(x=>x.id===catId)?.items || [];
             </div>
           </div>
         </div>
+      </div>`,
+    kz:`
+      <div class="objSwitchboard">
+        <div class="objWorkspace">
+          <div class="objTabs">
+            <button class="objTab" data-objcat="cost">Баға бойынша</button>
+            <button class="objTab" data-objcat="doubts">Күмән</button>
+            <button class="objTab" data-objcat="scam">Алаяқтық / развод</button>
+            <button class="objTab" data-objcat="safety">Қауіпсіздік / қайтару</button>
+            <button class="objTab" data-objcat="silent">Сөйлескісі келмейді</button>
+            <button class="objTab" data-objcat="negative">Жағымсыз тәжірибе</button>
+            <button class="objTab" data-objcat="assortment">Тауар ассортименті</button>
+            <button class="objTab" data-objcat="pensioners">Зейнеткерлер</button>
+          </div>
+          <div class="objPanels">
+            <div class="objPanel" data-objpanel="cost">
+              <div class="objPanelTitle">Бағаға қарсылық</div>
+              <div class="btnGrid" data-grid="objCost"></div>
+              <div class="objEmpty" data-empty-for="objCost">Ағымдағы іздеу бойынша ештеңе табылмады.</div>
+            </div>
+            <div class="objPanel" data-objpanel="doubts">
+              <div class="objPanelTitle">Күмән (ойланамын, ақылдасамын, отбасы, дәрігер және т.б.)</div>
+              <div class="btnGrid" data-grid="objDoubts"></div>
+              <div class="objEmpty" data-empty-for="objDoubts">Ағымдағы іздеу бойынша ештеңе табылмады.</div>
+            </div>
+            <div class="objPanel" data-objpanel="scam">
+              <div class="objPanelTitle">Алаяқтар, развод</div>
+              <div class="btnGrid" data-grid="objScam"></div>
+              <div class="objEmpty" data-empty-for="objScam">Ағымдағы іздеу бойынша ештеңе табылмады.</div>
+            </div>
+            <div class="objPanel" data-objpanel="safety">
+              <div class="objPanelTitle">Қауіпсіздік, тапсырысты қайтару</div>
+              <div class="btnGrid" data-grid="objSafety"></div>
+              <div class="objEmpty" data-empty-for="objSafety">Ағымдағы іздеу бойынша ештеңе табылмады.</div>
+            </div>
+            <div class="objPanel" data-objpanel="silent">
+              <div class="objPanelTitle">Сөйлескісі келмейді, диалогтан кетеді</div>
+              <div class="btnGrid" data-grid="objSilent"></div>
+              <div class="objEmpty" data-empty-for="objSilent">Ағымдағы іздеу бойынша ештеңе табылмады.</div>
+            </div>
+            <div class="objPanel" data-objpanel="negative">
+              <div class="objPanelTitle">Өткен сатып алулардан қалған жағымсыз тәжірибе</div>
+              <div class="btnGrid" data-grid="objNegative"></div>
+              <div class="objEmpty" data-empty-for="objNegative">Ағымдағы іздеу бойынша ештеңе табылмады.</div>
+            </div>
+            <div class="objPanel" data-objpanel="assortment">
+              <div class="objPanelTitle">Тауар ассортиментімен танысқысы келеді</div>
+              <div class="btnGrid" data-grid="objAssortment"></div>
+              <div class="objEmpty" data-empty-for="objAssortment">Ағымдағы іздеу бойынша ештеңе табылмады.</div>
+            </div>
+            <div class="objPanel" data-objpanel="pensioners">
+              <div class="objPanelTitle">Зейнеткерлер</div>
+              <div class="btnGrid" data-grid="objPensioners"></div>
+              <div class="objEmpty" data-empty-for="objPensioners">Ағымдағы іздеу бойынша ештеңе табылмады.</div>
+            </div>
+          </div>
+        </div>
       </div>`
   },
   buttonsByGrid:{
     objCost:[
-      { label:'Нет денег (категория Здоровье)', color:'red', text: customText('cost_no_money_health') },
-      { label:'Нет денег, закажу позже', color:'red', text: customText('cost_no_money_later') },
-      { label:'Нет денег', color:'red', text: customText('cost_no_money') },
-      { label:'Дорого', color:'red', text: customText('cost_expensive') },
-      { label:'Не хочу доплачивать', color:'red', text: customText('cost_no_extra_pay') },
-      { label:'У меня кредиты, нет таких денег', color:'red', text: customText('cost_loans') },
-      { label:'Куплю в аптеке дешевле', color:'red', text: customText('cost_pharmacy') },
-      { label:'Куплю дешевле', color:'red', text: customText('cost_cheaper') },
-      { label:'Сравнивает с Озон/Вайлдберриз (Здоровье)', color:'red', text: customText('cost_marketplace_health') },
+      { label:'Нет денег (категория Здоровье)', label_kz:'Ақша жоқ (Денсаулық санаты)', color:'red', text: customText('cost_no_money_health') },
+      { label:'Нет денег, закажу позже', label_kz:'Ақша жоқ, кейін тапсырамын', color:'red', text: customText('cost_no_money_later') },
+      { label:'Нет денег', label_kz:'Ақша жоқ', color:'red', text: customText('cost_no_money') },
+      { label:'Дорого', label_kz:'Қымбат', color:'red', text: customText('cost_expensive') },
+      { label:'Не хочу доплачивать', label_kz:'Қосымша төлегім келмейді', color:'red', text: customText('cost_no_extra_pay') },
+      { label:'У меня кредиты, нет таких денег', label_kz:'Кредитім бар, ондай ақша жоқ', color:'red', text: customText('cost_loans') },
+      { label:'Куплю в аптеке дешевле', label_kz:'Дәріханадан арзанырақ аламын', color:'red', text: customText('cost_pharmacy') },
+      { label:'Куплю дешевле', label_kz:'Арзанырақ аламын', color:'red', text: customText('cost_cheaper') },
+      { label:'Сравнивает с Озон/Вайлдберриз (Здоровье)', label_kz:'Ozon/WB-пен салыстырады (Денсаулық)', color:'red', text: customText('cost_marketplace_health') },
           ],
     objDoubts:[
-      { label:'Куплю позже/не готов купить сейчас/перезвоните мне (после цены)', color:'red', long:true, text: customText('doubts_later_full') },
-      { label:'Закажу позже', color:'red', text: customText('doubts_order_later') },
-            { label:'Подумаю "Здоровье"', color:'red', text: customText('doubts_think_health') },
-      { label:'Гарантии', color:'red', text: customText('doubts_guarantees') },
-      { label:'Покупал ранее, не помогло.', color:'red', text: customText('doubts_bought_before') },
-      { label:'Если мне не поможет Ваше средство?', color:'red', text: customText('doubts_not_help') },
-      { label:'Никогда раньше не слышал о вашем средстве', color:'red', long:true, text: customText('doubts_never_heard') },
-      { label:'Посоветуюсь с врачом', color:'red', text: customText('doubts_doctor') },
-      { label:'Посоветуюсь с семьёй', color:'red', text: customText('doubts_family') }
+      { label:'Куплю позже/не готов купить сейчас/перезвоните мне (после цены)', label_kz:'Кейін аламын / қазір дайын емеспін / қайта қоңырау шалыңыз', color:'red', long:true, text: customText('doubts_later_full') },
+      { label:'Закажу позже', label_kz:'Кейін тапсырамын', color:'red', text: customText('doubts_order_later') },
+            { label:'Подумаю "Здоровье"', label_kz:'Ойланамын «Денсаулық»', color:'red', text: customText('doubts_think_health') },
+      { label:'Гарантии', label_kz:'Кепілдіктер', color:'red', text: customText('doubts_guarantees') },
+      { label:'Покупал ранее, не помогло.', label_kz:'Бұрын алғанмын, көмектеспеді.', color:'red', text: customText('doubts_bought_before') },
+      { label:'Если мне не поможет Ваше средство?', label_kz:'Егер өніміңіз көмектеспесе ше?', color:'red', text: customText('doubts_not_help') },
+      { label:'Никогда раньше не слышал о вашем средстве', label_kz:'Өніміңіз туралы бұрын естімегенмін', color:'red', long:true, text: customText('doubts_never_heard') },
+      { label:'Посоветуюсь с врачом', label_kz:'Дәрігермен ақылдасамын', color:'red', text: customText('doubts_doctor') },
+      { label:'Посоветуюсь с семьёй', label_kz:'Отбасыммен ақылдасамын', color:'red', text: customText('doubts_family') }
     ],
     objScam:[
-      { label:'Вы мошенники', color:'red', text: customText('scam_you') },
-      { label:'Это развод, ничего не нужно', color:'red', text: customText('scam_nothing') },
-      { label:'Это развод', color:'red', text: customText('scam_plain') },
-      { label:'Хочу приехать к Вам лично в офис на консультацию', color:'red', long:true, text: customText('scam_office') }
+      { label:'Вы мошенники', label_kz:'Сіздер алаяқсыздар', color:'red', text: customText('scam_you') },
+      { label:'Это развод, ничего не нужно', label_kz:'Бұл развод, ештеңе керек емес', color:'red', text: customText('scam_nothing') },
+      { label:'Это развод', label_kz:'Бұл развод', color:'red', text: customText('scam_plain') },
+      { label:'Хочу приехать к Вам лично в офис на консультацию', label_kz:'Кеңес алу үшін кеңсеге өзім келгім келеді', color:'red', long:true, text: customText('scam_office') }
     ],
     objSafety:[
-      { label:'Клинические испытания', color:'red', text: customText('safety_trials') },
-      { label:'У меня аллергия на натуральную продукцию, травы, пыльцу.', color:'red', long:true, text: customText('safety_allergy') },
-      { label:'Что будет если захочу вернуть заказ?', color:'red', long:true, text: customText('safety_return') },
-      { label:'Это БАД? / Это лекарство?', color:'red', text: customText('safety_bad_or_medicine') }
+      { label:'Клинические испытания', label_kz:'Клиникалық сынақтар', color:'red', text: customText('safety_trials') },
+      { label:'У меня аллергия на натуральную продукцию, травы, пыльцу.', label_kz:'Табиғи өнімге, шөпке, тозаңға аллергиям бар', color:'red', long:true, text: customText('safety_allergy') },
+      { label:'Что будет если захочу вернуть заказ?', label_kz:'Тапсырысты қайтарғым келсе не болады?', color:'red', long:true, text: customText('safety_return') },
+      { label:'Это БАД? / Это лекарство?', label_kz:'Бұл БАД па? / Бұл дәрі ме?', color:'red', text: customText('safety_bad_or_medicine') }
     ],
     objSilent:[
-      { label:'Закажу позже', color:'red', text: customText('silent_order_later') },
-      { label:'Я вам перезвоню', color:'red', text: customText('silent_call_me') },
-      { label:'Отдайте другому акцию, мне не надо', color:'red', long:true, text: customText('silent_give_to_other') },
-      { label:'Куплю позже/не готов купить сейчас/перезвоните мне', color:'red', long:true, text: customText('silent_later_callback') }
+      { label:'Закажу позже', label_kz:'Кейін тапсырамын', color:'red', text: customText('silent_order_later') },
+      { label:'Я вам перезвоню', label_kz:'Мен сізге қайта қоңырау шаламын', color:'red', text: customText('silent_call_me') },
+      { label:'Отдайте другому акцию, мне не надо', label_kz:'Акцияны басқаға беріңіз, маған керек емес', color:'red', long:true, text: customText('silent_give_to_other') },
+      { label:'Куплю позже/не готов купить сейчас/перезвоните мне', label_kz:'Кейін аламын / қазір дайын емеспін / қайта қоңырау шалыңыз', color:'red', long:true, text: customText('silent_later_callback') }
     ],
     objNegative:[
-      { label:'Покупал ранее, не помогло.', color:'red', text: customText('negative_bought_before') },
-      { label:'Негативные отзывы', color:'red', text: customText('negative_reviews') },
-      { label:'Если мне не поможет Ваше средство?', color:'red', long:true, text: customText('negative_not_help') }
+      { label:'Покупал ранее, не помогло.', label_kz:'Бұрын алғанмын, көмектеспеді.', color:'red', text: customText('negative_bought_before') },
+      { label:'Негативные отзывы', label_kz:'Жағымсыз пікірлер', color:'red', text: customText('negative_reviews') },
+      { label:'Если мне не поможет Ваше средство?', label_kz:'Егер өніміңіз көмектеспесе ше?', color:'red', long:true, text: customText('negative_not_help') }
     ],
     objAssortment:[
-      { label:'А какие еще товары есть?', color:'red', text: customText('assortment_more') },
-      { label:'А можно где-то почитать или посмотреть каталог товаров? Пришлите на ВАТСАП', color:'red', long:true, text: customText('assortment_catalog') }
+      { label:'А какие еще товары есть?', label_kz:'Тағы қандай тауарлар бар?', color:'red', text: customText('assortment_more') },
+      { label:'А можно где-то почитать или посмотреть каталог товаров? Пришлите на ВАТСАП', label_kz:'Каталогты қайдан көруге болады? Ватсапқа жіберіңіз', color:'red', long:true, text: customText('assortment_catalog') }
     ],
     objPensioners:[
-      { label:'Я пенсионер, у меня нет денег', color:'red', text: customText('pensioner_no_money') },
-      { label:'Пенсия маленькая', color:'red', text: customText('pension_small') }
+      { label:'Я пенсионер, у меня нет денег', label_kz:'Мен зейнеткермін, ақшам жоқ', color:'red', text: customText('pensioner_no_money') },
+      { label:'Пенсия маленькая', label_kz:'Зейнетақым аз', color:'red', text: customText('pension_small') }
     ]
   }
 }
@@ -1180,6 +1301,11 @@ const PROD = (catId)=> PRODUCT_CATEGORIES.find(x=>x.id===catId)?.items || [];
     if (s.id === 'products') {
       const productsAbove = sectionContentEl.querySelector('#productsAbove');
       if (productsAbove) quickAreaEl.appendChild(productsAbove);
+    }
+
+    if (s.id === 'price') {
+      const priceMount = sectionContentEl.querySelector('#priceTablesMount');
+      if (priceMount) priceMount.innerHTML = buildPricePromoTableHtml(state.lang);
     }
 
     const grids = [...sectionContentEl.querySelectorAll('[data-grid]'), ...quickAreaEl.querySelectorAll('[data-grid]')];
