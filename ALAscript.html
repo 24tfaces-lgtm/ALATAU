@@ -135,6 +135,7 @@
     .objEmpty{ display:none; margin-top:8px; padding:10px 12px; border:1px dashed var(--border); border-radius:8px; background:#fafbfd; color:var(--muted); font-weight:700; }
 
     .cityListRed{ color:#dc2626; font-weight:900; }
+    .menuDeliveryNote{ color:#dc2626; font-weight:900; }
     .priceTableWrap{ border:1px solid var(--border); background:#fff; box-shadow:var(--shadow2); padding:12px; margin:12px 0; border-radius:10px; }
     .priceTableTitle{ margin:0 0 8px 0; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
     .priceTable{ width:100%; border-collapse:collapse; font-size:12px; background:#fff; }
@@ -2889,6 +2890,19 @@ ${TEXT.kz.health_2min}`} }
     });
   }
 
+  function getSidebarDeliveryNote(item, group){
+    const isGiftMailOnly = (((group || {}).cat || '') === 'ПОДАРОК НА ПОЧТУ');
+    if (isGiftMailOnly) return state.lang === 'kz' ? 'пошта' : 'почта';
+
+    if (item && item.isPromo) {
+      return state.lang === 'kz'
+        ? 'пошта / курьер: Ақтау, Алматы, Көкшетау, Түркістан, Шымкент, Астана'
+        : 'почта / курьер: Актау, Алматы, Кокшетау, Туркестан, Шымкент, Астана';
+    }
+
+    return state.lang === 'kz' ? 'курьер + пошта' : 'курьер + почта';
+  }
+
   function renderMenu(){
     menuEl.innerHTML = '';
     SECTIONS.forEach(s => {
@@ -2908,15 +2922,17 @@ ${TEXT.kz.health_2min}`} }
 
           group.items.forEach(item => {
             const sub = document.createElement('a');
+            const plainLabel = state.lang === 'kz' ? item.label_kz : item.label;
+            const deliveryNote = getSidebarDeliveryNote(item, group);
             sub.href = '#';
             sub.className = 'sub';
-            sub.textContent = state.lang === 'kz' ? item.label_kz : item.label;
+            sub.innerHTML = `${escapeHtml(plainLabel)}${deliveryNote ? ` <span class="menuDeliveryNote">(${escapeHtml(deliveryNote)})</span>` : ''}`;
             sub.onclick = (e) => {
               e.preventDefault();
               state.sectionId = 'products';
               state.activeKey = `product||${item.label}`;
               render();
-              setReplica(sectionTitle(currentSection()), sub.textContent, localizedText(item.text, item.label));
+              setReplica(sectionTitle(currentSection()), plainLabel, localizedText(item.text, item.label));
             };
             menuEl.appendChild(sub);
           });
