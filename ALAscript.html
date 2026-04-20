@@ -239,8 +239,9 @@
 
 Буквально пару минут Вашего времени, я задам несколько уточняющих вопросов.`,
       hello_obj:`Быстрые ответы на первые вопросы и сомнения клиента.`,
-      needs_general:`1) {Имя клиента}, как Вы сейчас в целом себя чувствуете? Что беспокоит больше всего?
-2) Что принимаете для поддержки здоровья на постоянной основе?`,
+      needs_general:`1) {Имя клиента}, сколько вам полных лет?
+2) {Имя клиента}, как Вы сейчас в целом себя чувствуете? Что беспокоит больше всего?
+3) Что принимаете для поддержки здоровья на постоянной основе?`,
       needs_if_ok:`Если клиент говорит «у меня всё хорошо»: {Имя клиента}, как раз поэтому я Вам и звоню. Лично на Ваше имя уже одобрена льготная программа “Здоровая нация” - и под мою личную ответственность она включает восстановление сосудов, ЖКТ, зрения, суставов, безопасное похудение (Если мужчина - и даже мужского здоровья). 
 
  
@@ -273,8 +274,9 @@
 
 Мен {Имя оператора}, «Денсаулық +» орталығының аға сарапшысымын. Сіздің атыңызға «Салауатты ұлт» жеңілдік бағдарламасы бекітілді. 2 минут бөліңіз, бірнеше сұрақ қойып, ыңғайлы нұсқаны ұсынамын.`,
       hello_obj:`Клиенттің алғашқы сұрақтары мен күмәндарына қысқа жауаптар.`,
-      needs_general:`1) {Имя клиента}, қазір жалпы жағдайыңыз қалай? Нені көбірек сезіп жүрсіз?
-2) Денсаулықты қолдау үшін тұрақты түрде не қабылдайсыз?`,
+      needs_general:`1) {Имя клиента}, толық жасыңыз қаншада?
+2) {Имя клиента}, қазір жалпы жағдайыңыз қалай? Нені көбірек сезіп жүрсіз?
+3) Денсаулықты қолдау үшін тұрақты түрде не қабылдайсыз?`,
       needs_if_ok:`Егер «бәрі жақсы» десе: {Имя клиента}, дәл сол үшін алдын ала қолдау маңызды. Ұйқы, қуат, жалпы хал-ахуал қалай?`,
       needs_hard_refusal:`Егер қатаң бас тартса: {Имя клиента}, түсінемін. Сізге тек жеңілдік бағдарламасы бекітілгенін айтып отырмын. Қаласаңыз, шартын өте қысқа түсіндіріп өтемін, шешімді өзіңіз қабылдайсыз.`,
       health_intro:`{Имя клиента}, біз табиғи концентраттармен жұмыс істейміз. Алдымен жағдайыңызды қысқаша түсінеміз, содан кейін лайықты нұсқаны ұсынамыз.`,
@@ -2414,11 +2416,7 @@ ${TEXT.kz.health_2min}`} }
         kz:`<div id="priceTablesMount"></div><div class="btnGrid" data-grid="priceMain"></div><div class="btnGrid" data-grid="priceTransitions"></div>`
       },
       buttonsByGrid:{
-        priceMain:[
-          { label:'Мы можем вам доставить?', label_kz:'Жеткізудің түрін таңдау', color:'purple', deliveryChooser:true, text:{ru:'Мы можем вам доставить?', kz:'Жеткізу түрін таңдайық.'} },
-          { label:'Озвучить цену + льготу', label_kz:'Баға + жеңілдікті айту', color:'green', text:{ru:TEXT.ru.price_offer, kz:TEXT.kz.price_offer} },
-          { label:'Переход к адресу', label_kz:'Мекенжайға өту', color:'blue', text:{ru:TEXT.ru.price_address, kz:TEXT.kz.price_address} }
-        ],
+        priceMain:[],
         priceDelivery:[
           { label:'ДВД до 17:00', label_kz:'ДВД 17:00-ге дейін', color:'purple', text:{ru:`Мы можем вам доставить сегодня?
 
@@ -2858,8 +2856,14 @@ ${TEXT.kz.health_2min}`} }
 
   function buildReplicaIntroHtml(section, selectedLabel, selectedPrepayKey){
     const parts = [];
-    const priceOfferHtml = applyTokensToReplicaHtml(state.lang === 'kz' ? TEXT.kz.price_offer : TEXT.ru.price_offer);
-    parts.push(`<div class="textBlock">${priceOfferHtml}</div>`);
+    if (section && (section.id === 'price' || section.id === 'checkout')) {
+      const priceOfferHtml = applyTokensToReplicaHtml(state.lang === 'kz' ? TEXT.kz.price_offer : TEXT.ru.price_offer);
+      parts.push(`<div class="textBlock">${priceOfferHtml}</div>`);
+    }
+
+    if (section && section.id === 'price') {
+      parts.push(`<div class="textBlock">${applyTokensToReplicaHtml(state.lang === 'kz' ? TEXT.kz.price_address : TEXT.ru.price_address)}</div>`);
+    }
 
     if (section && section.id === 'checkout') {
       parts.push(`<div class="textBlock">${applyTokensToReplicaHtml(getPrepaymentIntroText())}</div>`);
