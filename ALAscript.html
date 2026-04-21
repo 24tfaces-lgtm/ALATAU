@@ -7,6 +7,8 @@
 
 
 
+
+
 <!doctype html>
 <html lang="ru">
 <head>
@@ -2250,7 +2252,7 @@ DIABOX — қандағы қант деңгейі мен зат алмасуды
     return kz.length < ru.length * 0.45;
   }
 
-  const state = { sectionId:'hello', activeKey:null, search:'', lang:'ru', objCategory:'cost', prepayObjectionKeyBySection:{} };
+  const state = { sectionId:'hello', activeKey:null, search:'', lang:'ru', objCategory:'cost', productCategory:null, prepayObjectionKeyBySection:{} };
 
   const SECTIONS = [
     {
@@ -2348,8 +2350,8 @@ ${TEXT.kz.health_2min}`} }
     {
       id:'products', title_ru:'ПРЕЗЕНТАЦИЯ ТОВАРОВ', title_kz:'ТАУАР ТАНЫСТЫРЫЛЫМЫ',
       contentHtml:{
-        ru:`<div class="banner yellow">ВЫБЕРИТЕ ПРОДУКТ</div><div class="productRibbonHint">ЛЕНТА ПРОКРУЧИВАЕТСЯ ВПРАВО</div><div class="productRibbonWrap"><div class="productRibbon" id="productRibbon"></div></div><div class="btnGrid" data-grid="prodTransitions"></div>`,
-        kz:`<div class="banner yellow">ӨНІМДІ ТАҢДАҢЫЗ</div><div class="productRibbonHint">ЛЕНТАНЫ ОҢҒА ҚАРАЙ ЖЫЛЖЫТУҒА БОЛАДЫ</div><div class="productRibbonWrap"><div class="productRibbon" id="productRibbon"></div></div><div class="btnGrid" data-grid="prodTransitions"></div>`
+        ru:`<div class="banner yellow">ВЫБЕРИТЕ ПРОДУКТ</div><div id="productsMount"></div><div class="btnGrid" data-grid="prodTransitions"></div>`,
+        kz:`<div class="banner yellow">ӨНІМДІ ТАҢДАҢЫЗ</div><div id="productsMount"></div><div class="btnGrid" data-grid="prodTransitions"></div>`
       },
       buttonsByGrid:{
         prodTransitions:[
@@ -2641,6 +2643,8 @@ ${TEXT.kz.health_2min}`} }
 
   const menuEl = document.getElementById('menu');
   const pageTitleEl = document.getElementById('pageTitle');
+  const pageEl = document.querySelector('.page');
+  const replicaBoxEl = document.getElementById('replicaBox');
   const sectionContentEl = document.getElementById('sectionContent');
   const replicaTextEl = document.getElementById('replicaText');
   const replicaMetaEl = document.getElementById('replicaMeta');
@@ -5995,6 +5999,7 @@ ${TEXT.kz.health_2min}`} }
             sub.onclick = (e) => {
               e.preventDefault();
               state.sectionId = 'products';
+              state.productCategory = group.cat;
               state.activeKey = `product||${item.label}`;
               render();
               setReplica(sectionTitle(currentSection()), plainLabel, localizedText(item.text, item.label));
@@ -6006,29 +6011,99 @@ ${TEXT.kz.health_2min}`} }
     });
   }
 
-  function renderProductsRibbon(){
-    const ribbon = sectionContentEl.querySelector('#productRibbon');
-    if (!ribbon) return;
-    ribbon.innerHTML = '';
+  function getProductGroupByKey(key){
+    if (!PRODUCTS.length) return null;
+    return PRODUCTS.find(group => group.cat === key) || PRODUCTS[0] || null;
+  }
+
+  function getProductGroupByItemLabel(label){
+    return PRODUCTS.find(group => group.items.some(item => item.label === label)) || null;
+  }
+
+  function getVisibleProductItems(group){
+    if (!group || !Array.isArray(group.items)) return [];
+    return group.items.filter(item => matchesSearch(`${item.label} ${item.label_kz || ''} ${localizedText(item.text, item.label)}`));
+  }
+
+  function ensureProductCategory(){
+    const currentGroup = getProductGroupByKey(state.productCategory);
+    if (currentGroup) {
+      state.productCategory = currentGroup.cat;
+      return currentGroup;
+    }
+    const firstGroup = PRODUCTS.find(group => Array.isArray(group.items) && group.items.length) || null;
+    state.productCategory = firstGroup ? firstGroup.cat : null;
+    return firstGroup;
+  }
+
+  function renderProductsSwitchboard(){
+    const mount = sectionContentEl.querySelector('#productsMount');
+    if (!mount) return;
+
+    const isKz = state.lang === 'kz';
+    const emptyText = isKz ? 'Ағымдағы іздеуде ештеңе табылмады.' : 'По текущему поиску здесь ничего не найдено.';
+    const chooseText = isKz ? 'Өнімді таңдаңыз' : 'Выберите продукт';
+
+    ensureProductCategory();
+
+    mount.innerHTML = `
+      <div class="objSwitchboard">
+        <div class="objWorkspace">
+          <div class="objTabs" id="productTabs"></div>
+          <div class="objPanels" id="productPanels"></div>
+        </div>
+      </div>`;
+
+    const tabsEl = mount.querySelector('#productTabs');
+    const panelsEl = mount.querySelector('#productPanels');
 
     PRODUCTS.forEach(group => {
-      const seg = document.createElement('div');
-      seg.className = 'productSegment';
-      seg.innerHTML = `<div class="productSegmentTitle">${escapeHtml(state.lang === 'kz' ? group.cat_kz : group.cat)}</div><div class="btnGrid productLine"></div>`;
-      const line = seg.querySelector('.productLine');
+      const tab = document.createElement('button');
+      tab.className = `objTab ${group.cat === state.productCategory ? 'active' : ''}`;
+      tab.textContent = isKz ? (group.cat_kz || group.cat) : group.cat;
+      tab.onclick = () => {
+        state.productCategory = group.cat;
+        state.activeKey = null;
+        renderSection();
+      };
+      tabsEl.appendChild(tab);
 
-      group.items.filter(item => matchesSearch(`${item.label} ${localizedText(item.text, item.label)}`)).forEach(item => {
+      const panel = document.createElement('div');
+      panel.className = 'objPanel';
+      panel.style.display = group.cat === state.productCategory ? '' : 'none';
+
+      const title = document.createElement('div');
+      title.className = 'objPanelTitle';
+      title.textContent = `${chooseText}: ${isKz ? (group.cat_kz || group.cat) : group.cat}`;
+      panel.appendChild(title);
+
+      const grid = document.createElement('div');
+      grid.className = 'btnGrid';
+      const visibleItems = getVisibleProductItems(group);
+
+      visibleItems.forEach((item, idx) => {
+        const display = `${idx + 1}. ${isKz ? (item.label_kz || item.label) : item.label}`;
         const btn = document.createElement('button');
-        btn.className = `chip ${item.color || 'gray'}`;
-        btn.textContent = state.lang === 'kz' ? item.label_kz : item.label;
+        btn.className = `chip ${item.color || 'gray'} ${state.activeKey === `product||${item.label}` ? 'active' : ''} ${display.length > 50 ? 'long' : ''}`;
+        btn.textContent = display;
         btn.onclick = () => {
+          state.productCategory = group.cat;
           state.activeKey = `product||${item.label}`;
-          setReplica(sectionTitle(currentSection()), btn.textContent, localizedText(item.text, item.label));
+          renderSection();
+          replicaBoxEl.scrollIntoView({ behavior:'smooth', block:'start' });
         };
-        line.appendChild(btn);
+        grid.appendChild(btn);
       });
 
-      ribbon.appendChild(seg);
+      panel.appendChild(grid);
+
+      const empty = document.createElement('div');
+      empty.className = 'objEmpty';
+      empty.textContent = emptyText;
+      empty.style.display = visibleItems.length ? 'none' : 'block';
+      panel.appendChild(empty);
+
+      panelsEl.appendChild(panel);
     });
   }
 
@@ -6091,6 +6166,8 @@ ${TEXT.kz.health_2min}`} }
       const productKey = state.activeKey.split('||')[1];
       const item = PRODUCTS.flatMap(group => group.items).find(p => p.label === productKey);
       if (!item) return false;
+      const group = getProductGroupByItemLabel(productKey);
+      if (group) state.productCategory = group.cat;
       setReplica(sectionTitle(section), state.lang === 'kz' ? (item.label_kz || item.label) : item.label, localizedText(item.text, item.label));
       return true;
     }
@@ -6149,10 +6226,17 @@ ${TEXT.kz.health_2min}`} }
     const s = currentSection();
     pageTitleEl.textContent = sectionTitle(s);
     quickAreaEl.innerHTML = '';
+
+    if (s.id === 'objAfterPrice' || s.id === 'products') {
+      pageEl.appendChild(replicaBoxEl);
+    } else {
+      pageEl.insertBefore(replicaBoxEl, sectionContentEl);
+    }
+
     sectionContentEl.innerHTML = localizedText(s.contentHtml);
 
     if (s.id === 'products') {
-      renderProductsRibbon();
+      renderProductsSwitchboard();
     }
     if (s.id === 'price') {
       const priceMount = sectionContentEl.querySelector('#priceTablesMount');
@@ -6190,12 +6274,18 @@ ${TEXT.kz.health_2min}`} }
 
     if (!restoredReplica) {
       if (s.id === 'products') {
-        const firstGroup = PRODUCTS.find(g => g.items.length);
-        if (firstGroup) {
-          const firstItem = firstGroup.items[0];
-          setReplica(sectionTitle(s), state.lang === 'kz' ? firstItem.label_kz : firstItem.label, localizedText(firstItem.text, firstItem.label));
+        const preferredGroup = ensureProductCategory();
+        const hasVisibleInPreferred = preferredGroup && getVisibleProductItems(preferredGroup).length;
+        const fallbackGroup = PRODUCTS.find(group => getVisibleProductItems(group).length) || preferredGroup;
+        const targetGroup = hasVisibleInPreferred ? preferredGroup : fallbackGroup;
+        const visibleItems = getVisibleProductItems(targetGroup);
+        const firstItem = (visibleItems[0]) || ((targetGroup && targetGroup.items && targetGroup.items[0]) ? targetGroup.items[0] : null);
+        if (targetGroup) state.productCategory = targetGroup.cat;
+        if (firstItem) {
+          setReplica(sectionTitle(s), state.lang === 'kz' ? (firstItem.label_kz || firstItem.label) : firstItem.label, localizedText(firstItem.text, firstItem.label));
           state.activeKey = `product||${firstItem.label}`;
         } else {
+          replicaMetaEl.textContent = `${sectionTitle(s)} → ${ui('replicaHint')}`;
           replicaTextEl.textContent = '—';
         }
       } else if (s.id === 'price' || s.id === 'checkout') {
