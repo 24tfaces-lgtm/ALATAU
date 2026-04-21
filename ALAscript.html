@@ -140,6 +140,8 @@
 
     .cityListRed{ color:#dc2626; font-weight:900; }
     .menuDeliveryNote{ color:#dc2626; font-weight:900; }
+    .productBtnLabel{ display:block; }
+    .productBtnNote{ display:block; margin-top:4px; font-size:11px; line-height:1.35; font-weight:900; color:#dc2626; text-transform:none; }
     .priceTableWrap{ border:1px solid var(--border); background:#fff; box-shadow:var(--shadow2); padding:12px; margin:12px 0; border-radius:10px; }
     .priceTableTitle{ margin:0 0 8px 0; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
     .priceTable{ width:100%; border-collapse:collapse; font-size:12px; background:#fff; }
@@ -172,6 +174,9 @@
     .deliveryCheckAcItem:hover, .deliveryCheckAcItem.active{ background:#f3f7fb; }
     .deliveryCheckAcMeta{ margin-left:auto; font-size:11px; color:#64748b; white-space:nowrap; }
     .deliveryCheckMark{ background:#fffbcc; border-radius:4px; padding:0 2px; }
+    .replicaActions{ display:none; justify-content:flex-end; margin-top:14px; }
+    .replicaTopBtn{ border:1px solid var(--border); background:#fff; color:#0f172a; border-radius:999px; padding:8px 12px; font-weight:800; font-size:12px; cursor:pointer; box-shadow:var(--shadow2); }
+    .replicaTopBtn:hover{ background:#f8fafc; }
     @media (max-width:700px){ .deliveryCheckRow{ grid-template-columns:1fr; } .deliveryCheckBtn{ width:100%; } }
 
   </style>
@@ -203,6 +208,9 @@
         </div>
         <img id="replicaImg" alt="Фото товара" style="display:none; width:100%; max-height:220px; object-fit:contain; border:1px solid var(--border); background:#fff; margin:10px 0; padding:6px;" />
         <div class="replicaText" id="replicaText">—</div>
+        <div class="replicaActions" id="replicaActions">
+          <button type="button" class="replicaTopBtn" id="replicaBackTopBtn">↑ Наверх</button>
+        </div>
       </div>
 
       <div id="sectionContent"></div>
@@ -238,13 +246,13 @@
     ru: {
       appMenu:'Скрипт • меню', clientLabel:'Имя клиента', opLabel:'Имя оператора', clientPh:'Напр.: Айгуль', opPh:'Напр.: Алина',
       searchPh:'Поиск по кнопкам...', prev:'← Назад', next:'Далее →', langBtn:'RU → KZ', langBtnBack:'KZ → RU',
-      replicaLabel:'Реплика (читать оператору)', replicaHint:'Нажмите кнопку — реплика появится здесь',
+      replicaLabel:'Реплика (читать оператору)', replicaHint:'Нажмите кнопку — реплика появится здесь', backToTop:'↑ Наверх',
       pricePill:(base, benefit, extraDiscount, final)=>`Цена: ${fmt(base)} ₸ • Льгота: ${fmt(benefit)} ₸ • Персональная скидка: ${fmt(extraDiscount)} ₸ • Итог: ${fmt(final)} ₸`
     },
     kz: {
       appMenu:'Скрипт • мәзір', clientLabel:'Клиенттің аты', opLabel:'Оператордың аты-жөні', clientPh:'Мыс.: Айгүл', opPh:'Мыс.: Алина',
       searchPh:'Батырмалар бойынша іздеу...', prev:'← Артқа', next:'Келесі →', langBtn:'RU → KZ', langBtnBack:'KZ → RU',
-      replicaLabel:'Сөйлем (оператор оқиды)', replicaHint:'Батырманы басыңыз — мәтін осында шығады',
+      replicaLabel:'Сөйлем (оператор оқиды)', replicaHint:'Батырманы басыңыз — мәтін осында шығады', backToTop:'↑ Жоғары',
       pricePill:(base, benefit, extraDiscount, final)=>`Баға: ${fmt(base)} ₸ • Жеңілдік: ${fmt(benefit)} ₸ • Жеке жеңілдік: ${fmt(extraDiscount)} ₸ • Қорытынды: ${fmt(final)} ₸`
     }
   };
@@ -2659,6 +2667,8 @@ ${TEXT.kz.health_2min}`} }
   const lblOpEl = document.getElementById('lblOp');
   const replicaLabelEl = document.getElementById('replicaLabel');
   const replicaImgEl = document.getElementById('replicaImg');
+  const replicaActionsEl = document.getElementById('replicaActions');
+  const replicaBackTopBtnEl = document.getElementById('replicaBackTopBtn');
 
   function ui(key, ...args){
     const pack = UI[state.lang] || UI.ru;
@@ -2768,6 +2778,24 @@ ${TEXT.kz.health_2min}`} }
 
   function setDefaultPricePill(){
     pricePillEl.textContent = ui('pricePill', PRICING.base, PRICING.benefit, PRICING.extraDiscount, PRICING.final);
+  }
+
+  function shouldShowReplicaBackTop(section){
+    return !!section && (section.id === 'products' || section.id === 'objAfterPrice');
+  }
+
+  function syncReplicaActions(section = currentSection()){
+    if (!replicaActionsEl || !replicaBackTopBtnEl) return;
+    replicaBackTopBtnEl.textContent = ui('backToTop');
+    replicaActionsEl.style.display = shouldShowReplicaBackTop(section) ? 'flex' : 'none';
+  }
+
+  function scrollReplicaIntoView(){
+    replicaBoxEl.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function scrollSectionTop(){
+    pageTitleEl.scrollIntoView({ behavior:'smooth', block:'start' });
   }
 
   function getDeliveryGridName(section){
@@ -5886,6 +5914,7 @@ ${TEXT.kz.health_2min}`} }
 
     if (!list.length) {
       replicaTextEl.innerHTML = `${buildReplicaIntroHtml(section, selectedLabel, currentPrepayKey)}<div class="replicaDeliveryLead">${escapeHtml(lead)}</div><div class="replicaDeliveryPlaceholder">${escapeHtml(emptyText)}</div>`;
+      syncReplicaActions(section);
       mountDeliveryChecker(replicaTextEl);
       return;
     }
@@ -5896,6 +5925,7 @@ ${TEXT.kz.health_2min}`} }
       : `<div class="replicaDeliveryPlaceholder">${escapeHtml(placeholder)}</div>`;
 
     replicaTextEl.innerHTML = `${buildReplicaIntroHtml(section, selectedLabel, currentPrepayKey)}<div class="replicaDeliveryLead">${escapeHtml(lead)}</div><div class="btnGrid replicaDeliveryButtons">${buttonsHtml}</div><div class="replicaDeliveryContent">${contentHtml}</div>`;
+    syncReplicaActions(section);
     replicaTextEl.querySelectorAll('.replicaDeliveryBtn').forEach(el => {
       el.onclick = () => openDeliveryOption(section, el.getAttribute('data-delivery-label') || '');
     });
@@ -5917,6 +5947,7 @@ ${TEXT.kz.health_2min}`} }
     setReplicaImage('');
     replicaMetaEl.textContent = `${sectionTitleText} → ${btnLabelText}`;
     replicaTextEl.innerHTML = applyTokensToReplicaHtml(text);
+    syncReplicaActions();
   }
 
   function matchesSearch(hay){
@@ -5946,6 +5977,7 @@ ${TEXT.kz.health_2min}`} }
     replicaLabelEl.textContent = ui('replicaLabel');
     if (!state.activeKey) replicaMetaEl.textContent = ui('replicaHint');
     setDefaultPricePill();
+    syncReplicaActions();
   }
 
   function renderStagePills(){
@@ -6083,14 +6115,15 @@ ${TEXT.kz.health_2min}`} }
 
       visibleItems.forEach((item, idx) => {
         const display = `${idx + 1}. ${isKz ? (item.label_kz || item.label) : item.label}`;
+        const deliveryNote = getSidebarDeliveryNote(item, group);
         const btn = document.createElement('button');
         btn.className = `chip ${item.color || 'gray'} ${state.activeKey === `product||${item.label}` ? 'active' : ''} ${display.length > 50 ? 'long' : ''}`;
-        btn.textContent = display;
+        btn.innerHTML = `<span class="productBtnLabel">${escapeHtml(display)}</span>${deliveryNote ? `<span class="productBtnNote">${escapeHtml(deliveryNote)}</span>` : ''}`;
         btn.onclick = () => {
           state.productCategory = group.cat;
           state.activeKey = `product||${item.label}`;
           renderSection();
-          replicaBoxEl.scrollIntoView({ behavior:'smooth', block:'start' });
+          scrollReplicaIntoView();
         };
         grid.appendChild(btn);
       });
@@ -6233,6 +6266,7 @@ ${TEXT.kz.health_2min}`} }
       pageEl.insertBefore(replicaBoxEl, sectionContentEl);
     }
 
+    syncReplicaActions(s);
     sectionContentEl.innerHTML = localizedText(s.contentHtml);
 
     if (s.id === 'products') {
@@ -6262,6 +6296,7 @@ ${TEXT.kz.health_2min}`} }
             }
             state.activeKey = `${s.id}||${gridName}||${btn.label}`;
             setReplica(sectionTitle(s), display, localizedText(btn.text));
+            if (s.id === 'objAfterPrice') scrollReplicaIntoView();
             if (btn.goto) goToSection(btn.goto);
           };
           gridEl.appendChild(b);
@@ -6284,9 +6319,11 @@ ${TEXT.kz.health_2min}`} }
         if (firstItem) {
           setReplica(sectionTitle(s), state.lang === 'kz' ? (firstItem.label_kz || firstItem.label) : firstItem.label, localizedText(firstItem.text, firstItem.label));
           state.activeKey = `product||${firstItem.label}`;
+          syncReplicaActions(s);
         } else {
           replicaMetaEl.textContent = `${sectionTitle(s)} → ${ui('replicaHint')}`;
           replicaTextEl.textContent = '—';
+          syncReplicaActions(s);
         }
       } else if (s.id === 'price' || s.id === 'checkout') {
         openDeliveryChooser(s);
@@ -6335,6 +6372,12 @@ ${TEXT.kz.health_2min}`} }
     render();
     btnLangEl.blur();
   });
+  if (replicaBackTopBtnEl) {
+    replicaBackTopBtnEl.addEventListener('click', () => {
+      scrollSectionTop();
+      replicaBackTopBtnEl.blur();
+    });
+  }
 
   render();
 </script>
