@@ -6105,6 +6105,7 @@ ${TEXT.kz.health_2min}`} }
               state.activeKey = `product||${item.label}`;
               render();
               setReplica(sectionTitle(currentSection()), plainLabel, localizedText(item.text, item.label));
+              requestAnimationFrame(scrollReplicaIntoView);
             };
             menuEl.appendChild(sub);
           });
