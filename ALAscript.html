@@ -1,5 +1,3 @@
-
-
 <!doctype html>
 <html lang="ru">
 <head>
@@ -88,6 +86,7 @@
     .productReplicaComment{ margin:0 0 14px 0; padding:10px 12px; border:1px solid var(--border); background:#fff; border-radius:8px; line-height:1.58; font-weight:700; }
     .productReplicaCommentLabel{ display:block; margin:0 0 6px 0; color:var(--muted); font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.04em; }
     .replicaRedBold{ color:#dc2626; font-weight:900; }
+    .replicaBold{ font-weight:900; }
     .tokenClient{ color:#ef4444; font-weight:900; }
     .banner{ padding:10px 12px; font-weight:800; text-transform:uppercase; letter-spacing:.03em; margin:10px 0; display:block; border-left:6px solid transparent; }
     .banner.teal{ background:rgba(6,182,212,.18); border-left-color:var(--teal); }
@@ -96,6 +95,7 @@
     .banner.yellow{ background:rgba(245,158,11,.14); border-left-color:var(--yellow); }
     .banner.purple{ background:rgba(139,92,246,.12); border-left-color:var(--purple); }
     .textBlock{ font-size:15px; line-height:1.6; margin:10px 0; font-weight:500; }
+    .addressPromptBlock{ margin-bottom:6px; }
     .btnGrid{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
     button.chip{
       border:none; padding:10px 12px; font-weight:800; font-size:14px; color:#fff; cursor:pointer; box-shadow:var(--shadow2);
@@ -157,18 +157,18 @@
     @media (max-width:1100px){ .app{ grid-template-columns:1fr; } .sidebar{ position:relative; height:auto; } }
 
     /* Delivery checker */
-    .deliveryCheck{ margin:1px 0 2px 0; padding:0; }
-    .deliveryCheckRow{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px; align-items:center; position:relative; }
+    .deliveryCheck{ margin:-4px 0 12px 0; padding:0; max-width:460px; clear:both; }
+    .deliveryCheckRow{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:5px; align-items:center; position:relative; }
     .deliveryCheckInputWrap{ position:relative; min-width:0; }
-    .deliveryCheckInput{ width:100%; padding:7px 9px; border:1px solid #d7e3ef; border-radius:10px; outline:none; font:inherit; font-size:12px; background:#fff; transition:border-color .15s ease, box-shadow .15s ease; }
+    .deliveryCheckInput{ width:100%; height:30px; padding:5px 8px; border:1px solid #d7e3ef; border-radius:8px; outline:none; font:inherit; font-size:11px; background:#fff; transition:border-color .15s ease, box-shadow .15s ease; }
     .deliveryCheckInput:focus{ border-color:rgba(14,165,233,.55); box-shadow:0 0 0 3px rgba(14,165,233,.10); }
-    .deliveryCheckBtn{ border:none; cursor:pointer; padding:7px 10px; border-radius:10px; font-weight:800; font-size:11px; color:#fff; background:linear-gradient(135deg,var(--blue) 0%,var(--blue2) 100%); }
+    .deliveryCheckBtn{ border:none; cursor:pointer; height:30px; padding:5px 9px; border-radius:8px; font-weight:800; font-size:10px; color:#fff; background:linear-gradient(135deg,var(--blue) 0%,var(--blue2) 100%); }
     .deliveryCheckResult{ display:flex; flex-wrap:wrap; gap:4px; margin-top:3px; min-height:0; }
     .deliveryCheckPill{ display:inline-flex; align-items:center; justify-content:center; padding:5px 9px; border-radius:999px; font-size:10px; font-weight:800; border:1px solid #dbe5ef; background:#fff; color:#0f172a; }
     .deliveryCheckPill.ok{ background:#ecfdf5; border-color:#bbf7d0; color:#166534; }
     .deliveryCheckPill.post{ background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
     .deliveryCheckPill.warn{ background:#fff7ed; border-color:#fed7aa; color:#9a3412; }
-    .deliveryCheckAc{ position:absolute; top:34px; left:0; right:0; background:#fff; border:1px solid #dbe5ef; border-radius:10px; box-shadow:0 12px 24px rgba(15,23,42,.10); overflow:hidden; max-height:220px; overflow:auto; display:none; z-index:5; }
+    .deliveryCheckAc{ position:static; margin-top:4px; width:100%; background:#fff; border:1px solid #dbe5ef; border-radius:10px; box-shadow:0 8px 18px rgba(15,23,42,.08); overflow:hidden; max-height:220px; overflow:auto; display:none; z-index:5; }
     .deliveryCheckAcItem{ padding:7px 9px; cursor:pointer; display:flex; align-items:center; gap:8px; font-size:11px; }
     .deliveryCheckAcItem:hover, .deliveryCheckAcItem.active{ background:#f3f7fb; }
     .deliveryCheckAcMeta{ margin-left:auto; font-size:11px; color:#64748b; white-space:nowrap; }
@@ -176,7 +176,7 @@
     .replicaActions{ display:none; justify-content:flex-end; margin-top:14px; }
     .replicaTopBtn{ border:1px solid var(--border); background:#fff; color:#0f172a; border-radius:999px; padding:8px 12px; font-weight:800; font-size:12px; cursor:pointer; box-shadow:var(--shadow2); }
     .replicaTopBtn:hover{ background:#f8fafc; }
-    @media (max-width:700px){ .deliveryCheckRow{ grid-template-columns:1fr; } .deliveryCheckBtn{ width:100%; } }
+    @media (max-width:700px){ .deliveryCheck{ max-width:100%; } .deliveryCheckRow{ grid-template-columns:minmax(0,1fr) auto; } .deliveryCheckBtn{ width:auto; } }
 
   </style>
 </head>
@@ -284,8 +284,8 @@
 
 Имя клиента, сейчас я подберу индивидуальную дозировку, расскажу подробнее и обязательно дам важные рекомендации, которые Вы не услышите даже от опытных врачей. Хорошо? (ждём ответ)`,
       health_2min:`{Имя клиента}, уделите мне буквально пару минут, и я подберу вариант под Вашу ситуацию.`,
-      price_offer:`{Имя клиента}, я внимательно изучил(а) Вашу ситуацию, и подобрал(а) для Вас идеальный курс 2 упаковки препарата. Вы не только поспособствуете решению проблемы, но и сможете закрепить результат на долгие годы, такую возможность нельзя упускать. Стандартная стоимость курса 90 000 тенге. По Вашей льготе списываем 50 000 тенге, а так же от себя еще сделаю персональную скидку 3 000 тенге и к оплате получается 37 000 тенге. Доставка бесплатная, предоплаты нет — оплата только при получении. Закрепляем льготу?`,
-      price_address:`Подскажите, пожалуйста, по какому адресу оформим доставку?`,
+      price_offer:`{Имя клиента}, я внимательно изучил(а) Вашу ситуацию, и подобрал(а) для Вас [[RED_BOLD_START]]идеальный курс 2 упаковки препарата[[RED_BOLD_END]]. Вы не только поспособствуете решению проблемы, но и сможете [[RED_BOLD_START]]закрепить результат на долгие годы[[RED_BOLD_END]], такую возможность нельзя упускать. [[RED_BOLD_START]]Стандартная стоимость курса[[RED_BOLD_END]] [[BOLD_START]]90 000 тенге[[BOLD_END]]. По Вашей [[RED_BOLD_START]]льготе[[RED_BOLD_END]] списываем [[BOLD_START]]50 000 тенге[[BOLD_END]], а так же от себя еще сделаю [[RED_BOLD_START]]персональную скидку[[RED_BOLD_END]] [[BOLD_START]]3 000 тенге[[BOLD_END]] и [[RED_BOLD_START]]к оплате получается[[RED_BOLD_END]] [[BOLD_START]]37 000 тенге[[BOLD_END]]. [[RED_BOLD_START]]Доставка бесплатная[[RED_BOLD_END]], [[RED_BOLD_START]]предоплаты нет[[RED_BOLD_END]] — [[RED_BOLD_START]]оплата только при получении[[RED_BOLD_END]]. [[RED_BOLD_START]]Закрепляем льготу?[[RED_BOLD_END]]`,
+      price_address:`[[RED_BOLD_START]]Подскажите, пожалуйста, по какому адресу оформим доставку?[[RED_BOLD_END]]`,
       checkout_summary:`Имя клиента, давайте коротко подытожим заказ. Вы выбрали: (укажите товар / набор), срок применения: (если применимо), количество упаковок: (укажите), итоговая сумма к оплате при получении: (укажите) тенге. Адрес доставки: (укажите), получатель: (сверьте ФИО). Обязательно ещё раз сверьте способ доставки, адрес и контактные данные.
 
 Если доставка курьером — уточните ориентировочную дату и напомните быть на связи. Если отправка почтой — напомните, что срок и возможная комиссия за перевод наложенного платежа зависят от правил почтовой службы на день оформления, а для получения может понадобиться документ.`,
@@ -318,8 +318,8 @@
       needs_hard_refusal:`Егер қатаң бас тартса: {Имя клиента}, түсінемін. Сізге тек жеңілдік бағдарламасы бекітілгенін айтып отырмын. Қаласаңыз, шартын өте қысқа түсіндіріп өтемін, шешімді өзіңіз қабылдайсыз.`,
       health_intro:`{Имя клиента}, біз табиғи концентраттармен жұмыс істейміз. Алдымен жағдайыңызды қысқаша түсінеміз, содан кейін лайықты нұсқаны ұсынамыз.`,
       health_2min:`{Имя клиента}, маған 2 минут қана бөліңіз, мен сізге ыңғайлы нұсқаны таңдап беремін.`,
-      price_offer:`{Имя клиента}, курстың стандарт бағасы 90 000 теңге. Сіздің жеңілдігіңіз бойынша 50 000 теңге шегеріледі, оған қоса өз атымнан тағы 3 000 теңге жеке жеңілдік жасаймын, сонда төлем 37 000 теңге болады. Жеткізу тегін, алдын ала төлем жоқ — төлем тек алған кезде. Жеңілдікті бекітеміз бе?`,
-      price_address:`Жеткізуді қай мекенжайға рәсімдейміз?`,
+      price_offer:`{Имя клиента}, курстың [[RED_BOLD_START]]стандарт бағасы[[RED_BOLD_END]] [[BOLD_START]]90 000 теңге[[BOLD_END]]. Сіздің [[RED_BOLD_START]]жеңілдігіңіз бойынша[[RED_BOLD_END]] [[BOLD_START]]50 000 теңге[[BOLD_END]] шегеріледі, оған қоса өз атымнан тағы [[BOLD_START]]3 000 теңге[[BOLD_END]] [[RED_BOLD_START]]жеке жеңілдік[[RED_BOLD_END]] жасаймын, сонда [[RED_BOLD_START]]төлем[[RED_BOLD_END]] [[BOLD_START]]37 000 теңге[[BOLD_END]] болады. [[RED_BOLD_START]]Жеткізу тегін[[RED_BOLD_END]], [[RED_BOLD_START]]алдын ала төлем жоқ[[RED_BOLD_END]] — [[RED_BOLD_START]]төлем тек алған кезде[[RED_BOLD_END]]. [[RED_BOLD_START]]Жеңілдікті бекітеміз бе?[[RED_BOLD_END]]`,
+      price_address:`[[RED_BOLD_START]]Жеткізуді қай мекенжайға рәсімдейміз?[[RED_BOLD_END]]`,
       checkout_summary:``,
       buyout:``
     }
@@ -2420,29 +2420,41 @@ ${TEXT.kz.health_2min}`} }
 
 К заказу будет приложена накладная, подарочный сертификат, декларация или сертификат соответствия. Для вас доставка будет бесплатной.
 
-Этот номер можете сохранить как (ФИО оператора) специалист, если возникнут какие-либо вопросы, звоните на этот номер и спросите меня, я выйду на связь в течении 5-и минут и отвечу на все ваши вопросы.`, kz:`Біз сізге бүгін жеткізе аламыз ба?
+Этот номер можете сохранить как (ФИО оператора) специалист, если возникнут какие-либо вопросы, звоните на этот номер и спросите меня, я выйду на связь в течении 5-и минут и отвечу на все ваши вопросы.
+
+[[RED_BOLD_START]]Через 5 минут после оформления Вам позвонят из службы логистики, чтобы назначить курьера! Обязательно возьмите телефон и не пропустите звонок, хорошо?[[RED_BOLD_END]]`, kz:`Біз сізге бүгін жеткізе аламыз ба?
 
 Тапсырысқа жүкқұжат, сыйлық сертификаты, декларация немесе сәйкестік сертификаты қоса беріледі. Сіз үшін жеткізу тегін болады.
 
-Бұл нөмірді (оператордың ТАӘА) маман деп сақтап қойсаңыз болады, қандай да бір сұрақтар туындаса, осы нөмірге хабарласып, мені сұраңыз, 5 минут ішінде байланысқа шығып, барлық сұрағыңызға жауап беремін.`} },
+Бұл нөмірді (оператордың ТАӘА) маман деп сақтап қойсаңыз болады, қандай да бір сұрақтар туындаса, осы нөмірге хабарласып, мені сұраңыз, 5 минут ішінде байланысқа шығып, барлық сұрағыңызға жауап беремін.
+
+[[RED_BOLD_START]]Рәсімдеуден кейін 5 минут ішінде сізге логистика қызметінен курьерді тағайындау үшін хабарласады! Телефоныңызды міндетті түрде алыңыз және қоңырауды өткізіп алмаңыз, жақсы ма?[[RED_BOLD_END]]`} },
           { label:'Экспресс (на завтра)', label_kz:'Экспресс (ертең)', color:'purple', text:{ru:`Хорошо! Тогда предлагаю оформить заказ на завтра! Согласны?
 
-К заказу будет приложена накладная, подарочный сертификат, декларация или сертификат соответствия. Для вас доставка будет бесплатной.`, kz:`Жақсы! Онда тапсырысты ертеңге рәсімдеуді ұсынамын! Келісесіз бе?
+К заказу будет приложена накладная, подарочный сертификат, декларация или сертификат соответствия. Для вас доставка будет бесплатной.
 
-Тапсырысқа жүкқұжат, сыйлық сертификаты, декларация немесе сәйкестік сертификаты қоса беріледі. Сіз үшін жеткізу тегін болады.`} },
+[[RED_BOLD_START]]После оформления Вам позвонят из службы логистики, чтобы назначить курьера! Обязательно возьмите телефон и не пропустите звонок, хорошо?[[RED_BOLD_END]]`, kz:`Жақсы! Онда тапсырысты ертеңге рәсімдеуді ұсынамын! Келісесіз бе?
+
+Тапсырысқа жүкқұжат, сыйлық сертификаты, декларация немесе сәйкестік сертификаты қоса беріледі. Сіз үшін жеткізу тегін болады.
+
+[[RED_BOLD_START]]Рәсімдеуден кейін сізге логистика қызметінен курьерді тағайындау үшін хабарласады! Телефоныңызды міндетті түрде алыңыз және қоңырауды өткізіп алмаңыз, жақсы ма?[[RED_BOLD_END]]`} },
           { label:'Стандартная доставка (3-4 дня)', label_kz:'Стандартты жеткізу (3-4 күн)', color:'purple', text:{ru:`Так же, есть стандартная доставка, в течении 3-4-х дней наш курьер доставит вам товар.
 
 Давайте договоримся о дате доставки, какого числа вам удобно принять товар?
 
 Предварительно курьер вам обязательно позвонит!
 
-К заказу будет приложена накладная, декларация или сертификат.`, kz:`Сондай-ақ стандартты жеткізу бар, 3-4 күн ішінде біздің курьер тауарды жеткізіп береді.
+К заказу будет приложена накладная, декларация или сертификат.
+
+[[RED_BOLD_START]]После оформления Вам позвонят из службы логистики, чтобы назначить курьера! Обязательно возьмите телефон и не пропустите звонок, хорошо?[[RED_BOLD_END]]`, kz:`Сондай-ақ стандартты жеткізу бар, 3-4 күн ішінде біздің курьер тауарды жеткізіп береді.
 
 Келіңіз, жеткізу күнін келісіп алайық, сізге қай күні қабылдау ыңғайлы?
 
 Курьер алдын ала міндетті түрде хабарласады!
 
-Тапсырысқа жүкқұжат, декларация немесе сертификат қоса беріледі.`} },
+Тапсырысқа жүкқұжат, декларация немесе сертификат қоса беріледі.
+
+[[RED_BOLD_START]]Рәсімдеуден кейін сізге логистика қызметінен курьерді тағайындау үшін хабарласады! Телефоныңызды міндетті түрде алыңыз және қоңырауды өткізіп алмаңыз, жақсы ма?[[RED_BOLD_END]]`} },
           { label:'Почтовая доставка', label_kz:'Пошта арқылы жеткізу', color:'purple', text:{ru:`Доставка будет производиться по почте. В течении 10 рабочих дней посылка прибудет к вам на почту. Почта вас уведомит извещением, мы в свою очередь пришлём вам СМС сообщение с кодом посылки на ваш мобильный номер.
 
 В посылку будут вложены сертификат, накладная и декларация.
@@ -2520,29 +2532,41 @@ ${TEXT.kz.health_2min}`} }
 
 К заказу будет приложена накладная, подарочный сертификат, декларация или сертификат соответствия. Для вас доставка будет бесплатной.
 
-Этот номер можете сохранить как (ФИО оператора) специалист, если возникнут какие-либо вопросы, звоните на этот номер и спросите меня, я выйду на связь в течении 5-и минут и отвечу на все ваши вопросы.`, kz:`Біз сізге бүгін жеткізе аламыз ба?
+Этот номер можете сохранить как (ФИО оператора) специалист, если возникнут какие-либо вопросы, звоните на этот номер и спросите меня, я выйду на связь в течении 5-и минут и отвечу на все ваши вопросы.
+
+[[RED_BOLD_START]]Через 5 минут после оформления Вам позвонят из службы логистики, чтобы назначить курьера! Обязательно возьмите телефон и не пропустите звонок, хорошо?[[RED_BOLD_END]]`, kz:`Біз сізге бүгін жеткізе аламыз ба?
 
 Тапсырысқа жүкқұжат, сыйлық сертификаты, декларация немесе сәйкестік сертификаты қоса беріледі. Сіз үшін жеткізу тегін болады.
 
-Бұл нөмірді (оператордың ТАӘА) маман деп сақтап қойсаңыз болады, қандай да бір сұрақтар туындаса, осы нөмірге хабарласып, мені сұраңыз, 5 минут ішінде байланысқа шығып, барлық сұрағыңызға жауап беремін.`} },
+Бұл нөмірді (оператордың ТАӘА) маман деп сақтап қойсаңыз болады, қандай да бір сұрақтар туындаса, осы нөмірге хабарласып, мені сұраңыз, 5 минут ішінде байланысқа шығып, барлық сұрағыңызға жауап беремін.
+
+[[RED_BOLD_START]]Рәсімдеуден кейін 5 минут ішінде сізге логистика қызметінен курьерді тағайындау үшін хабарласады! Телефоныңызды міндетті түрде алыңыз және қоңырауды өткізіп алмаңыз, жақсы ма?[[RED_BOLD_END]]`} },
           { label:'Экспресс (на завтра)', label_kz:'Экспресс (ертең)', color:'purple', text:{ru:`Хорошо! Тогда предлагаю оформить заказ на завтра! Согласны?
 
-К заказу будет приложена накладная, подарочный сертификат, декларация или сертификат соответствия. Для вас доставка будет бесплатной.`, kz:`Жақсы! Онда тапсырысты ертеңге рәсімдеуді ұсынамын! Келісесіз бе?
+К заказу будет приложена накладная, подарочный сертификат, декларация или сертификат соответствия. Для вас доставка будет бесплатной.
 
-Тапсырысқа жүкқұжат, сыйлық сертификаты, декларация немесе сәйкестік сертификаты қоса беріледі. Сіз үшін жеткізу тегін болады.`} },
+[[RED_BOLD_START]]После оформления Вам позвонят из службы логистики, чтобы назначить курьера! Обязательно возьмите телефон и не пропустите звонок, хорошо?[[RED_BOLD_END]]`, kz:`Жақсы! Онда тапсырысты ертеңге рәсімдеуді ұсынамын! Келісесіз бе?
+
+Тапсырысқа жүкқұжат, сыйлық сертификаты, декларация немесе сәйкестік сертификаты қоса беріледі. Сіз үшін жеткізу тегін болады.
+
+[[RED_BOLD_START]]Рәсімдеуден кейін сізге логистика қызметінен курьерді тағайындау үшін хабарласады! Телефоныңызды міндетті түрде алыңыз және қоңырауды өткізіп алмаңыз, жақсы ма?[[RED_BOLD_END]]`} },
           { label:'Стандартная доставка (3-4 дня)', label_kz:'Стандартты жеткізу (3-4 күн)', color:'purple', text:{ru:`Так же, есть стандартная доставка, в течении 3-4-х дней наш курьер доставит вам товар.
 
 Давайте договоримся о дате доставки, какого числа вам удобно принять товар?
 
 Предварительно курьер вам обязательно позвонит!
 
-К заказу будет приложена накладная, декларация или сертификат.`, kz:`Сондай-ақ стандартты жеткізу бар, 3-4 күн ішінде біздің курьер тауарды жеткізіп береді.
+К заказу будет приложена накладная, декларация или сертификат.
+
+[[RED_BOLD_START]]После оформления Вам позвонят из службы логистики, чтобы назначить курьера! Обязательно возьмите телефон и не пропустите звонок, хорошо?[[RED_BOLD_END]]`, kz:`Сондай-ақ стандартты жеткізу бар, 3-4 күн ішінде біздің курьер тауарды жеткізіп береді.
 
 Келіңіз, жеткізу күнін келісіп алайық, сізге қай күні қабылдау ыңғайлы?
 
 Курьер алдын ала міндетті түрде хабарласады!
 
-Тапсырысқа жүкқұжат, декларация немесе сертификат қоса беріледі.`} },
+Тапсырысқа жүкқұжат, декларация немесе сертификат қоса беріледі.
+
+[[RED_BOLD_START]]Рәсімдеуден кейін сізге логистика қызметінен курьерді тағайындау үшін хабарласады! Телефоныңызды міндетті түрде алыңыз және қоңырауды өткізіп алмаңыз, жақсы ма?[[RED_BOLD_END]]`} },
           { label:'Почтовая доставка', label_kz:'Пошта арқылы жеткізу', color:'purple', text:{ru:`Доставка будет производиться по почте. В течении 10 рабочих дней посылка прибудет к вам на почту. Почта вас уведомит извещением, мы в свою очередь пришлём вам СМС сообщение с кодом посылки на ваш мобильный номер.
 
 В посылку будут вложены сертификат, накладная и декларация.
@@ -2788,7 +2812,9 @@ ${TEXT.kz.health_2min}`} }
       .replaceAll('{ДопСкидка}', '[[EXTRA_DISCOUNT]]')
       .replaceAll('{Итог}', '[[PRICE_FINAL]]')
       .replaceAll('[[RED_BOLD_START]]', '[[RED_BOLD_START_TOKEN]]')
-      .replaceAll('[[RED_BOLD_END]]', '[[RED_BOLD_END_TOKEN]]');
+      .replaceAll('[[RED_BOLD_END]]', '[[RED_BOLD_END_TOKEN]]')
+      .replaceAll('[[BOLD_START]]', '[[BOLD_START_TOKEN]]')
+      .replaceAll('[[BOLD_END]]', '[[BOLD_END_TOKEN]]');
 
     s = escapeHtml(s)
       .replaceAll('[[CLIENT]]', `<span class="tokenClient">${escapeHtml(t.client)}</span>`)
@@ -2798,7 +2824,9 @@ ${TEXT.kz.health_2min}`} }
       .replaceAll('[[EXTRA_DISCOUNT]]', escapeHtml(t.extraDiscount))
       .replaceAll('[[PRICE_FINAL]]', escapeHtml(t.priceFinal))
       .replaceAll('[[RED_BOLD_START_TOKEN]]', `<span class="replicaRedBold">`)
-      .replaceAll('[[RED_BOLD_END_TOKEN]]', `</span>`);
+      .replaceAll('[[RED_BOLD_END_TOKEN]]', `</span>`)
+      .replaceAll('[[BOLD_START_TOKEN]]', `<span class="replicaBold">`)
+      .replaceAll('[[BOLD_END_TOKEN]]', `</span>`);
 
     return s.replaceAll('\n','<br>');
   }
@@ -5784,17 +5812,7 @@ ${TEXT.kz.health_2min}`} }
 
   function getDeliveryCheckerHtml() {
     const t = getDeliveryCheckerI18n();
-    return `
-      <div class="deliveryCheck" data-delivery-checker>
-        <div class="deliveryCheckRow">
-          <div class="deliveryCheckInputWrap">
-            <input type="text" class="deliveryCheckInput" data-delivery-input placeholder="${escapeHtml(t.placeholder)}" autocomplete="off" autocapitalize="none" spellcheck="false">
-            <div class="deliveryCheckAc" data-delivery-ac></div>
-          </div>
-          <button type="button" class="deliveryCheckBtn" data-delivery-btn>${escapeHtml(t.button)}</button>
-        </div>
-        <div class="deliveryCheckResult" data-delivery-result></div>
-      </div>`;
+    return `<div class="deliveryCheck" data-delivery-checker><div class="deliveryCheckRow"><div class="deliveryCheckInputWrap"><input type="text" class="deliveryCheckInput" data-delivery-input placeholder="${escapeHtml(t.placeholder)}" autocomplete="off" autocapitalize="none" spellcheck="false"><div class="deliveryCheckAc" data-delivery-ac></div></div><button type="button" class="deliveryCheckBtn" data-delivery-btn>${escapeHtml(t.button)}</button></div><div class="deliveryCheckResult" data-delivery-result></div></div>`;
   }
 
   function mountDeliveryChecker(root) {
@@ -5919,7 +5937,7 @@ ${TEXT.kz.health_2min}`} }
     }
 
     if (section && section.id === 'price') {
-      parts.push(`<div class="textBlock">${applyTokensToReplicaHtml(state.lang === 'kz' ? TEXT.kz.price_address : TEXT.ru.price_address)}</div>`);
+      parts.push(`<div class="textBlock addressPromptBlock">${applyTokensToReplicaHtml(state.lang === 'kz' ? TEXT.kz.price_address : TEXT.ru.price_address)}</div>`);
       parts.push(getDeliveryCheckerHtml());
     }
 
