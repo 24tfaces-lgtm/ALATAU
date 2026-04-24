@@ -86,6 +86,36 @@
     .productReplicaComment{ margin:0; padding:18px 22px; border:1px solid #d8dce5; background:#fbfbfc; border-radius:18px; line-height:1.56; font-weight:800; color:#111827; box-shadow:0 2px 8px rgba(15,23,42,.04); }
     .productReplicaCommentLabel{ display:block; margin:0 0 10px 0; color:#6b7280; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
     .productReplicaCommentBody{ display:block; line-height:1.56; }
+    .productPicker{ margin:0 0 12px 0; padding:10px 12px; border:1px solid var(--border); background:#fbfdff; border-radius:12px; box-shadow:var(--shadow2); }
+    .productPickerHead{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; margin-bottom:8px; }
+    .productPickerTitle{ font-weight:900; text-transform:uppercase; letter-spacing:.04em; color:#0f172a; font-size:12px; }
+    .productPickerHint{ font-size:11px; line-height:1.35; color:var(--muted); font-weight:800; margin-top:2px; }
+    .productPickerControls{ display:block; }
+    .productPickerSearch{ width:100%; margin:0; padding:8px 10px; border:1px solid var(--border); border-radius:10px; font-size:12px; font-weight:700; outline:none; }
+    .productPickerSearch:focus{ border-color:rgba(14,165,233,.55); box-shadow:0 0 0 3px rgba(14,165,233,.10); }
+    .productPickerGrid{ display:grid; grid-template-columns:1fr; gap:7px; margin-top:8px; max-height:420px; overflow:auto; padding-right:2px; }
+    .productPickerGrid.active{ display:grid; }
+    .productPickerCard{ border:1px solid var(--border); background:#fff; border-radius:10px; padding:8px 10px; box-shadow:0 2px 8px rgba(15,23,42,.03); display:grid; grid-template-columns:180px minmax(0,1fr) auto; gap:8px; align-items:start; }
+    .productPickerCard.hidden{ display:none; }
+    .productPickerCardTitle{ color:#dc2626; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.03em; margin:0; }
+    .productPickerText{ font-size:11px; line-height:1.38; font-weight:700; color:#1f2937; margin:0; }
+    .productPickerLabel{ display:none; }
+    .productPickerTags{ display:none; }
+    .productPickerTag{ display:inline-flex; padding:5px 8px; border-radius:999px; background:#f1f5f9; border:1px solid #e2e8f0; font-size:11px; font-weight:800; color:#334155; }
+    .productPickerProducts{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; margin:0; min-width:280px; }
+    .productPickerProductWrap{ position:relative; display:inline-flex; align-items:center; max-width:260px; }
+    .productPickerProductWrap[data-delivery-note]:not([data-delivery-note=""]):hover::after,
+    .productPickerProductWrap[data-delivery-note]:not([data-delivery-note=""]):focus-within::after{ opacity:1; visibility:visible; transform:translate(-50%, -6px); }
+    .productPickerProductWrap[data-delivery-note]:not([data-delivery-note=""])::after{ content:attr(data-delivery-note); position:absolute; left:50%; bottom:100%; width:max-content; max-width:280px; padding:8px 10px; border-radius:10px; background:#0f172a; color:#fff; font-size:10px; line-height:1.35; font-weight:900; text-align:left; box-shadow:0 10px 22px rgba(15,23,42,.22); opacity:0; visibility:hidden; transform:translate(-50%, 0); transition:opacity .15s ease, transform .15s ease, visibility .15s ease; z-index:30; pointer-events:none; white-space:normal; }
+    .productPickerProductWrap[data-delivery-note]:not([data-delivery-note=""]):hover::before,
+    .productPickerProductWrap[data-delivery-note]:not([data-delivery-note=""]):focus-within::before{ opacity:1; visibility:visible; transform:translate(-50%, -6px); }
+    .productPickerProductWrap[data-delivery-note]:not([data-delivery-note=""])::before{ content:""; position:absolute; left:50%; bottom:100%; width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:6px solid #0f172a; opacity:0; visibility:hidden; transform:translate(-50%, 0); transition:opacity .15s ease, transform .15s ease, visibility .15s ease; z-index:31; pointer-events:none; }
+    .productPickerProductBtn{ border:none; border-radius:999px; padding:6px 8px; background:var(--blue); color:#fff; font-size:10px; font-weight:900; cursor:pointer; }
+    .productPickerProductBtn:hover{ background:var(--blue2); }
+    .productPickerEmpty{ display:none; margin-top:8px; padding:8px 10px; border:1px dashed var(--border); border-radius:10px; color:var(--muted); background:#fff; font-size:12px; font-weight:800; }
+    .productPickerEmpty.active{ display:block; }
+    @media (max-width:900px){ .productPickerHead{ grid-template-columns:1fr; } .productPickerCard{ grid-template-columns:1fr; } .productPickerProducts{ justify-content:flex-start; } .productPickerProductWrap{ align-items:flex-start; } }
+
     .replicaRedBold{ color:#dc2626; font-weight:900; }
     .replicaBold{ font-weight:900; }
     .tokenClient{ color:#ef4444; font-weight:900; }
@@ -2341,8 +2371,8 @@ ${TEXT.kz.health_2min}`} }
     {
       id:'products', title_ru:'ПРЕЗЕНТАЦИЯ ТОВАРОВ', title_kz:'ТАУАР ТАНЫСТЫРЫЛЫМЫ',
       contentHtml:{
-        ru:`<div class="banner yellow">ВЫБЕРИТЕ ПРОДУКТ</div><div id="productsMount"></div><div class="btnGrid" data-grid="prodTransitions"></div>`,
-        kz:`<div class="banner yellow">ӨНІМДІ ТАҢДАҢЫЗ</div><div id="productsMount"></div><div class="btnGrid" data-grid="prodTransitions"></div>`
+        ru:`<div class="banner yellow">ВЫБЕРИТЕ ПРОДУКТ</div><div id="productPickerMount"></div><div class="btnGrid" data-grid="prodTransitions"></div>`,
+        kz:`<div class="banner yellow">ӨНІМДІ ТАҢДАҢЫЗ</div><div id="productPickerMount"></div><div class="btnGrid" data-grid="prodTransitions"></div>`
       },
       buttonsByGrid:{
         prodTransitions:[
@@ -6108,6 +6138,186 @@ ${TEXT.kz.health_2min}`} }
     return firstGroup;
   }
 
+  const PRODUCT_PICKER_GUIDES = [
+    {
+      title:'Сердце / сосуды / давление', title_kz:'Жүрек / тамыр / қысым',
+      symptoms:['давление','гипертония','скачки давления','сердце','сосуды','холестерин','головокружение','шум в ушах','онемение','холодные руки и ноги','отеки','память','инсульт профилактика','варикоз','тахикардия'],
+      symptoms_kz:['қысым','жүрек','тамыр','бас айналу','құлақ шулау','ұю','ісіну','холестерин'],
+      why:'При жалобах на давление, сосуды, сердце, головокружение, шум в ушах, холестерин, плохую память, отёки и нарушение кровообращения.',
+      why_kz:'Қысым, жүрек, тамыр, бас айналу, құлақ шулау, ісіну, холестерин және қан айналымы бойынша шағымдарда.',
+      products:['КАРДИОЦИТИЛ','CARDIODOC','КАРДИО КОНТРОЛЬ']
+    },
+    {
+      title:'Сахар / диабет / обмен веществ', title_kz:'Қант / диабет / зат алмасу',
+      symptoms:['сахар','диабет','глюкоза','инсулин','жажда','сухость во рту','слабость','усталость','частое мочеиспускание','онемение ног','зуд кожи','плохое заживление','лишний вес','обмен веществ'],
+      symptoms_kz:['қант','диабет','глюкоза','шөлдеу','әлсіздік','аяқ ұю','тері қышуы','зат алмасу'],
+      why:'При повышенном сахаре, диабете, нестабильной глюкозе, жажде, слабости, онемении ног, кожном зуде и нарушении обмена веществ.',
+      why_kz:'Қант жоғарылағанда, диабетте, глюкоза тұрақсыздығында, шөлдеу, әлсіздік, аяқ ұю және зат алмасу бұзылғанда.',
+      products:['DIABOX']
+    },
+    {
+      title:'Суставы / спина / хрящи', title_kz:'Буын / арқа / шеміршек',
+      symptoms:['суставы','артрит','артроз','остеохондроз','колени','тазобедренный','спина','поясница','шея','хруст','скованность','отек суставов','боль при ходьбе','подагра','хрящ','синовиальная жидкость','радикулит'],
+      symptoms_kz:['буын','артрит','артроз','тізе','арқа','бел','мойын','сықырлау','құрысу','ісіну'],
+      why:'При боли в суставах, артрите, артрозе, хрусте, скованности, отёках, боли в коленях, спине, шее и пояснице.',
+      why_kz:'Буын ауруы, артрит, артроз, тізе, арқа, мойын, бел, сықырлау, құрысу және ісіну кезінде.',
+      products:['СУСТАВИТИН','IMOSTEON','МОНАСТЫРСКАЯ ТРАВНИЦА','МОРСКОЙ КОЛЛАГЕН']
+    },
+    {
+      title:'Зрение / глаза', title_kz:'Көру / көз',
+      symptoms:['зрение','глаза','сухость глаз','пелена','мушки','катаракта','глаукома','сетчатка','зрительный нерв','усталость глаз','экран','очки','близорукость','дальнозоркость','слезотечение','резь в глазах'],
+      symptoms_kz:['көру','көз','құрғақтық','перде','көз шаршауы','экран','көзілдірік'],
+      why:'При снижении зрения, сухости, пелене, мушках, усталости от экрана, проблемах с сетчаткой, зрительным нервом и возрастных изменениях.',
+      why_kz:'Көру төмендегенде, көз құрғағанда, перде, «шыбындар», экраннан шаршау және жасқа байланысты өзгерістерде.',
+      products:['ГОЛУБИТОКС','ЯСТРЕБ','ОМЕГА 3']
+    },
+    {
+      title:'Паразиты / ЖКТ / очищение', title_kz:'Паразиттер / асқазан-ішек / тазарту',
+      symptoms:['паразиты','глисты','лямблии','очищение','шлаки','токсины','жкт','кишечник','желудок','печень','горечь во рту','вздутие','запор','диарея','аллергия','сыпь','зуд','запах изо рта','усталость','слабый иммунитет'],
+      symptoms_kz:['паразит','ішек','асқазан','бауыр','тазарту','кебу','іш қату','аллергия','қышу'],
+      why:'При подозрении на паразитов, проблемах ЖКТ, вздутии, горечи во рту, кожных высыпаниях, аллергии, зуде, токсинах и необходимости очищения организма.',
+      why_kz:'Паразит күдігі, асқазан-ішек шағымдары, кебу, ауыздағы ащы дәм, бөртпе, аллергия, қышу және ағзаны тазарту қажет болғанда.',
+      products:['SHE (ШИ)','ОМЕГА 3']
+    },
+    {
+      title:'Похудение / отёки / аппетит', title_kz:'Арықтау / ісіну / тәбет',
+      symptoms:['похудение','лишний вес','ожирение','аппетит','тяга к сладкому','отеки','живот','талия','метаболизм','обмен веществ','целлюлит','после родов','малоподвижность'],
+      symptoms_kz:['арықтау','артық салмақ','тәбет','тәттіге құмарлық','ісіну','іш','метаболизм'],
+      why:'При лишнем весе, отёках, повышенном аппетите, тяге к сладкому, замедленном обмене веществ, животе, целлюлите.',
+      why_kz:'Артық салмақ, ісіну, тәбет жоғарылауы, тәттіге құмарлық, зат алмасу баяулауы және іш аймағы бойынша.',
+      products:['СТРОЙНИЦА']
+    },
+    {
+      title:'Мужское здоровье', title_kz:'Ерлер денсаулығы',
+      symptoms:['потенция','эрекция','либидо','простатит','аденома','мочеиспускание','частые позывы','ночью в туалет','мужская сила','тестостерон','быстрая усталость','снижение энергии','возрастные изменения','уверенность'],
+      symptoms_kz:['потенция','эрекция','простатит','либидо','ерлер күші','тестостерон','қуат төмендеуі'],
+      why:'При снижении потенции, слабой эрекции, простатите, частом мочеиспускании, возрастных изменениях, снижении энергии и уверенности.',
+      why_kz:'Потенция төмендеуі, эрекция, простатит, жиі зәр шығару, жасқа байланысты өзгерістер және қуат төмендегенде.',
+      products:['РЕПРОСТАНОЛ','ALPHA METHOD','ПАНТОГЕМАТОГЕН','OSTERI','TITAN GEL','LIBIDEX','ВУЛКАН']
+    },
+    {
+      title:'Женское здоровье / красота / кожа', title_kz:'Әйел денсаулығы / сұлулық / тері',
+      symptoms:['женское здоровье','кожа','волосы','ногти','морщины','сухость кожи','коллаген','красота','упругость','суставы','связки','целлюлит','гормональный фон','климакс','усталость','тон кожи'],
+      symptoms_kz:['әйел денсаулығы','тері','шаш','тырнақ','әжім','коллаген','сұлулық','серпімділік'],
+      why:'При жалобах на кожу, волосы, ногти, морщины, сухость, снижение упругости, красоту, коллагеновую поддержку и женское здоровье.',
+      why_kz:'Тері, шаш, тырнақ, әжім, құрғақтық, серпімділік, сұлулық және әйел денсаулығы бойынша.',
+      products:['LUCEM+','МОРСКОЙ КОЛЛАГЕН','SACHEL']
+    },
+    {
+      title:'Курение / никотиновая зависимость', title_kz:'Темекі / никотинге тәуелділік',
+      symptoms:['курение','сигареты','никотин','бросить курить','тяга к сигаретам','кашель курильщика','одышка','нервозность','раздражительность','запах табака','срыв'],
+      symptoms_kz:['темекі','никотин','темекіні тастау','құмарлық','жөтел','ашушаңдық'],
+      why:'Когда клиент хочет бросить курить или снизить тягу к сигаретам, есть кашель курильщика, одышка, раздражительность и страх сорваться.',
+      why_kz:'Клиент темекіні тастағысы келгенде, құмарлық, жөтел, ентігу, ашушаңдық немесе қайта бастап кету қаупі болғанда.',
+      products:['SMOKING LOCK']
+    },
+    {
+      title:'Общая поддержка / омега / профилактика', title_kz:'Жалпы қолдау / омега / профилактика',
+      symptoms:['иммунитет','память','мозг','энергия','профилактика','сосуды','сердце','кожа','суставы','зрение','усталость','воспаление','холестерин','омега'],
+      symptoms_kz:['иммунитет','есте сақтау','ми','қуат','профилактика','жүрек','тері','буын','көру'],
+      why:'Для общей поддержки организма: сосуды, сердце, память, кожа, суставы, зрение, иммунитет, профилактика и восполнение омега-кислот.',
+      why_kz:'Ағзаны жалпы қолдау үшін: тамыр, жүрек, есте сақтау, тері, буын, көру, иммунитет және омега қышқылдары.',
+      products:['ОМЕГА 3']
+    }
+  ];
+
+  function findProductItemByLabel(label){
+    return PRODUCTS.flatMap(group => group.items).find(item => item.label === label) || null;
+  }
+
+  function openProductFromPicker(label){
+    const item = findProductItemByLabel(label);
+    const group = getProductGroupByItemLabel(label);
+    if (!item || !group) return;
+    state.productCategory = group.cat;
+    state.activeKey = `product||${item.label}`;
+    renderSection();
+    scrollReplicaIntoView();
+  }
+
+  function getPickerDeliveryNote(label){
+    const item = findProductItemByLabel(label);
+    const group = getProductGroupByItemLabel(label);
+    if (!item || !group) return '';
+    const isKz = state.lang === 'kz';
+
+    const itemText = localizedText(item.text, item.label) || '';
+    const deliveryLine = (itemText.match(/(?:ДОСТАВКА|ЖЕТКІЗУ)\s*:\s*([^\n]+)/i) || [])[1];
+    if (deliveryLine) return deliveryLine.trim();
+
+    const isGiftMailOnly = (((group || {}).cat || '') === 'ПОДАРОК НА ПОЧТУ');
+    if (isGiftMailOnly) return isKz ? 'пошта: Қазақстан бойынша' : 'почта: по всему Казахстану';
+
+    if (item && item.isPromo) {
+      return isKz
+        ? 'пошта: Қазақстан бойынша • курьер: Ақтау, Алматы, Көкшетау, Түркістан, Шымкент, Астана'
+        : 'почта: по всему Казахстану • курьер: Актау, Алматы, Кокшетау, Туркестан, Шымкент, Астана';
+    }
+
+    return isKz ? 'курьер + пошта' : 'курьер + почта';
+  }
+
+  function buildPickerProductButtonHtml(label){
+    const note = getPickerDeliveryNote(label);
+    return `<span class="productPickerProductWrap" data-delivery-note="${escapeHtml(note)}"><button type="button" class="productPickerProductBtn" data-product-label="${escapeHtml(label)}" title="${escapeHtml(note)}">${escapeHtml(label)}</button></span>`;
+  }
+
+  function renderProductPicker(){
+    const mount = sectionContentEl.querySelector('#productPickerMount');
+    if (!mount) return;
+    const isKz = state.lang === 'kz';
+    const title = isKz ? 'Жылдам таңдау: шағым бойынша өнім' : 'Быстрый подбор: что беспокоит клиента';
+    const hint = isKz
+      ? 'Оператор шағымды таңдайды немесе іздейді, содан кейін қажетті өнімнің презентациясын ашады.'
+      : 'Оператор выбирает жалобу или заболевание, затем открывает подходящую презентацию продукта.';
+    const searchPh = isKz ? 'Өнімді іздеу' : 'Поиск по жалобе или заболеванию';
+    mount.innerHTML = `
+      <div class="productPicker">
+        <div class="productPickerHead">
+          <div>
+            <div class="productPickerTitle">${escapeHtml(title)}</div>
+            <div class="productPickerHint">${escapeHtml(hint)}</div>
+          </div>
+        </div>
+        <div class="productPickerControls">
+          <input class="productPickerSearch" id="productPickerSearch" placeholder="${escapeHtml(searchPh)}" />
+        </div>
+        <div class="productPickerEmpty" id="productPickerEmpty">${escapeHtml(isKz ? 'Бұл шағым бойынша бағыт табылмады.' : 'По этой жалобе направление не найдено.')}</div>
+        <div class="productPickerGrid active" id="productPickerGrid"></div>
+      </div>`;
+
+    const grid = mount.querySelector('#productPickerGrid');
+    PRODUCT_PICKER_GUIDES.forEach((guide) => {
+      const card = document.createElement('div');
+      card.className = 'productPickerCard';
+      card.setAttribute('data-picker-text', `${guide.title} ${guide.title_kz || ''} ${(guide.symptoms || []).join(' ')} ${(guide.symptoms_kz || []).join(' ')} ${guide.why || ''} ${guide.why_kz || ''} ${(guide.products || []).join(' ')}`.toLowerCase());
+      card.innerHTML = `
+        <div class="productPickerCardTitle">${escapeHtml(isKz ? (guide.title_kz || guide.title) : guide.title)}</div>
+        <div class="productPickerText">${escapeHtml(isKz ? (guide.why_kz || guide.why) : guide.why)}</div>
+        <div class="productPickerProducts">${(guide.products || []).map(p => buildPickerProductButtonHtml(p)).join('')}</div>`;
+      grid.appendChild(card);
+    });
+
+    mount.querySelectorAll('.productPickerProductBtn').forEach(btn => {
+      btn.onclick = () => openProductFromPicker(btn.getAttribute('data-product-label') || '');
+    });
+
+    const search = mount.querySelector('#productPickerSearch');
+    const empty = mount.querySelector('#productPickerEmpty');
+    const updatePicker = () => {
+      const q = search.value.trim().toLowerCase();
+      let visible = 0;
+      mount.querySelectorAll('.productPickerCard').forEach(card => {
+        const show = !q || (card.getAttribute('data-picker-text') || '').includes(q);
+        card.classList.toggle('hidden', !show);
+        if (show) visible += 1;
+      });
+      empty.classList.toggle('active', visible === 0);
+    };
+    search.oninput = updatePicker;
+    updatePicker();
+  }
+
   function renderProductsSwitchboard(){
     const mount = sectionContentEl.querySelector('#productsMount');
     if (!mount) return;
@@ -6310,7 +6520,7 @@ ${TEXT.kz.health_2min}`} }
     sectionContentEl.innerHTML = localizedText(s.contentHtml);
 
     if (s.id === 'products') {
-      renderProductsSwitchboard();
+      renderProductPicker();
     }
     if (s.id === 'price') {
       const priceMount = sectionContentEl.querySelector('#priceTablesMount');
