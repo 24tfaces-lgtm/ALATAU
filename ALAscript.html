@@ -77,6 +77,14 @@
     }
     .replicaHead .meta{ font-size:12px; color:var(--muted); font-weight:700; }
     .replicaText{ font-size:18px; line-height:1.55; font-weight:900; white-space:pre-wrap; word-wrap:break-word; margin:0; }
+
+    .productReplicaFormatted{ white-space:normal; font-weight:700; }
+    .productReplicaParagraph{ margin:0 0 12px 0; line-height:1.58; }
+    .productReplicaMeta{ margin:0 0 10px 0; line-height:1.5; font-weight:900; }
+    .productReplicaHeader{ margin:14px 0 10px 0; padding:8px 10px; border-left:6px solid var(--yellow); background:rgba(245,158,11,.14); font-weight:900; text-transform:uppercase; letter-spacing:.03em; }
+    .productReplicaQuestion{ margin:14px 0 8px 0; padding:10px 12px; border-left:6px solid #dc2626; background:rgba(220,38,38,.07); color:#dc2626; font-weight:900; line-height:1.55; border-radius:8px; }
+    .productReplicaComment{ margin:0 0 14px 0; padding:10px 12px; border:1px solid var(--border); background:#fff; border-radius:8px; line-height:1.58; font-weight:700; }
+    .productReplicaCommentLabel{ display:block; margin:0 0 6px 0; color:var(--muted); font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.04em; }
     .replicaRedBold{ color:#dc2626; font-weight:900; }
     .tokenClient{ color:#ef4444; font-weight:900; }
     .banner{ padding:10px 12px; font-weight:800; text-transform:uppercase; letter-spacing:.03em; margin:10px 0; display:block; border-left:6px solid transparent; }
@@ -5934,10 +5942,48 @@ ${TEXT.kz.health_2min}`} }
     renderDeliveryReplica(section, label);
   }
 
+  function formatProductPresentationHtml(text){
+    const lines = String(text || '').split(/\r?\n/);
+    const parts = [];
+    const headerRe = /^(ПРЕЗЕНТАЦИЯ|ТОВАР|НАПРАВЛЕНИЕ|БАҒЫТЫ|1 УПАКОВКА|1 ҚАПТАМА|ПРИЁМ|ҚАБЫЛДАУ|АКЦИЯ\/УСЛОВИЯ|АКЦИЯ\/ШАРТ|ДОСТАВКА|ЖЕТКІЗУ|Заметка|Ескерту|Артықшылықтары)\s*:/i;
+    const commentRe = /^(Комментарий оператора|Оператордың түсіндірмесі|Комментарий)\s*:/i;
+    const questionRe = /[?？]\s*(\([^)]*\))?\s*$/;
+
+    lines.forEach(line => {
+      const raw = (line || '').trim();
+      if (!raw) return;
+
+      if (commentRe.test(raw)) {
+        const idx = raw.indexOf(':');
+        const label = idx >= 0 ? raw.slice(0, idx + 1) : raw;
+        const body = idx >= 0 ? raw.slice(idx + 1).trim() : '';
+        parts.push(`<div class="productReplicaComment"><span class="productReplicaCommentLabel">${applyTokensToReplicaHtml(label)}</span>${body ? `<div>${applyTokensToReplicaHtml(body)}</div>` : ''}</div>`);
+        return;
+      }
+
+      if (questionRe.test(raw)) {
+        parts.push(`<div class="productReplicaQuestion">${applyTokensToReplicaHtml(raw)}</div>`);
+        return;
+      }
+
+      if (headerRe.test(raw)) {
+        const isPresentationHeader = /^ПРЕЗЕНТАЦИЯ\s*:/i.test(raw);
+        parts.push(`<div class="${isPresentationHeader ? 'productReplicaHeader' : 'productReplicaMeta'}">${applyTokensToReplicaHtml(raw)}</div>`);
+        return;
+      }
+
+      parts.push(`<div class="productReplicaParagraph">${applyTokensToReplicaHtml(raw)}</div>`);
+    });
+
+    return `<div class="productReplicaFormatted">${parts.join('')}</div>`;
+  }
+
   function setReplica(sectionTitleText, btnLabelText, text){
     setReplicaImage('');
     replicaMetaEl.textContent = `${sectionTitleText} → ${btnLabelText}`;
-    replicaTextEl.innerHTML = applyTokensToReplicaHtml(text);
+    replicaTextEl.innerHTML = state.activeKey && state.activeKey.startsWith('product||')
+      ? formatProductPresentationHtml(text)
+      : applyTokensToReplicaHtml(text);
     syncReplicaActions();
   }
 
