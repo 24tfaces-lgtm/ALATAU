@@ -2284,7 +2284,7 @@ LUCEM+ курсы не береді, қысқаша қорытындылайық
       },
       buttonsByGrid:{
         helloMain:[
-          { label:'Переход к выявлению потребностей', label_kz:'Қажеттілікті анықтауға өту', color:'green', goto:'needs', text:{ru:TEXT.ru.hello_start, kz:TEXT.kz.hello_start} }
+          { label:'Переход → Натуральные средства', label_kz:'Өту → Табиғи өнімдер', color:'green', goto:'health', text:{ru:TEXT.ru.hello_start, kz:TEXT.kz.hello_start} }
         ],
                 helloObj:[
           { label:'Откуда звоните?', label_kz:'Қайдан қоңырау шалып тұрсыз?', color:'red', text:{ru:`{Имя клиента}, я звоню Вам из консультационного отдела центра «Даралтай». Моя задача — коротко объяснить условия программы, ответить на Ваши вопросы и, если это будет актуально, помочь подобрать подходящий вариант. Сейчас буквально в двух словах расскажу, чтобы Вам было понятно, по какому вопросу звонок.`, kz:`{Имя клиента}, мен Сізге «Даралтай» орталығының консультациялық бөлімінен хабарласып тұрмын. Менің міндетім — бағдарлама шартын қысқаша түсіндіру, сұрақтарыңызға жауап беру және қажет болса, Сізге лайық нұсқаны таңдауға көмектесу. Қазір екі ауыз сөзбен қоңыраудың мәнін түсіндіріп өтейін.`} },
@@ -2345,7 +2345,7 @@ LUCEM+ курсы не береді, қысқаша қорытындылайық
           { label:'Если категорически отказывается', label_kz:'Егер қатаң бас тартса', color:'red', text:{ ru:TEXT.ru.needs_hard_refusal, kz:TEXT.kz.needs_hard_refusal } }
         ],
         needsTransitions:[
-          { label:'Переход → Натуральные средства', label_kz:'Өту → Табиғи өнімдер', color:'green', goto:'health', text:{ru:TEXT.ru.health_intro, kz:TEXT.kz.health_intro} }
+          { label:'Переход → Презентация товаров', label_kz:'Өту → Тауар таныстырылымы', color:'green', goto:'products', text:{ru:'Тогда подберём подходящий продукт.', kz:'Онда лайықты өнім таңдайық.'} }
         ]
       }
     },
@@ -2364,7 +2364,7 @@ ${TEXT.ru.health_2min}`, kz:`${TEXT.kz.health_intro}
 ${TEXT.kz.health_2min}`} }
         ],
         healthTransitions:[
-          { label:'Переход → Презентация товаров', label_kz:'Өту → Тауар таныстырылымы', color:'green', goto:'products', text:{ru:'Тогда подберём подходящий продукт.', kz:'Онда лайықты өнім таңдайық.'} }
+          { label:'Переход → Выявление потребностей', label_kz:'Өту → Қажеттілікті анықтау', color:'green', goto:'needs', text:{ ru:TEXT.ru.needs_general, kz:TEXT.kz.needs_general } }
         ]
       }
     },
@@ -2684,7 +2684,9 @@ ${TEXT.kz.health_2min}`} }
     }
   ];
 
-  const FLOW = SECTIONS.map(s=>s.id);
+  const SECTION_ORDER = ['hello','health','needs','products','price','checkout','buyout','objAfterPrice'];
+  const ORDERED_SECTIONS = SECTION_ORDER.map(id => SECTIONS.find(s => s.id === id)).filter(Boolean);
+  const FLOW = ORDERED_SECTIONS.map(s=>s.id);
 
   const menuEl = document.getElementById('menu');
   const pageTitleEl = document.getElementById('pageTitle');
@@ -6052,7 +6054,7 @@ ${TEXT.kz.health_2min}`} }
 
   function renderStagePills(){
     stagePillsEl.innerHTML = '';
-    SECTIONS.forEach(s => {
+    ORDERED_SECTIONS.forEach(s => {
       const b = document.createElement('button');
       b.className = `stagePill ${s.id === state.sectionId ? 'active' : ''}`;
       b.textContent = sectionTitle(s);
@@ -6076,7 +6078,7 @@ ${TEXT.kz.health_2min}`} }
 
   function renderMenu(){
     menuEl.innerHTML = '';
-    SECTIONS.forEach(s => {
+    ORDERED_SECTIONS.forEach(s => {
       const a = document.createElement('a');
       a.href = '#';
       a.textContent = sectionTitle(s);
