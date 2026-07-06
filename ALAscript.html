@@ -2371,8 +2371,8 @@ ${TEXT.kz.health_2min}`} }
     {
       id:'products', title_ru:'ПРЕЗЕНТАЦИЯ ТОВАРОВ', title_kz:'ТАУАР ТАНЫСТЫРЫЛЫМЫ',
       contentHtml:{
-        ru:`<div class="banner yellow">ВЫБЕРИТЕ ПРОДУКТ</div><div id="productPickerMount"></div><div class="btnGrid" data-grid="prodTransitions"></div>`,
-        kz:`<div class="banner yellow">ӨНІМДІ ТАҢДАҢЫЗ</div><div id="productPickerMount"></div><div class="btnGrid" data-grid="prodTransitions"></div>`
+        ru:`<div class="banner yellow">ПРЕЗЕНТАЦИЯ ТОВАРОВ: ВЫБЕРИТЕ НАПРАВЛЕНИЕ → СРЕДСТВО</div><div id="productPickerMount"></div><div class="btnGrid" data-grid="prodTransitions"></div>`,
+        kz:`<div class="banner yellow">ТАУАР ТАНЫСТЫРЫЛЫМЫ: БАҒЫТТЫ → ӨНІМДІ ТАҢДАҢЫЗ</div><div id="productPickerMount"></div><div class="btnGrid" data-grid="prodTransitions"></div>`
       },
       buttonsByGrid:{
         prodTransitions:[
@@ -6268,57 +6268,72 @@ ${TEXT.kz.health_2min}`} }
   function renderProductPicker(){
     const mount = sectionContentEl.querySelector('#productPickerMount');
     if (!mount) return;
+
     const isKz = state.lang === 'kz';
-    const title = isKz ? 'Жылдам таңдау: шағым бойынша өнім' : 'Быстрый подбор: что беспокоит клиента';
+    const title = isKz ? '1-қадам. Денсаулық бағытын таңдаңыз' : '1 шаг. Выберите направление здоровья';
     const hint = isKz
-      ? 'Оператор шағымды таңдайды немесе іздейді, содан кейін қажетті өнімнің презентациясын ашады.'
-      : 'Оператор выбирает жалобу или заболевание, затем открывает подходящую презентацию продукта.';
-    const searchPh = isKz ? 'Өнімді іздеу' : 'Поиск по жалобе или заболеванию';
+      ? 'Алдымен үлкен бағытты таңдаңыз, содан кейін нақты өнімнің батырмасын басыңыз — презентация төменде ашылады.'
+      : 'Сначала выберите крупное направление, затем нажмите на нужное средство — презентация откроется ниже.';
+    const chooseProduct = isKz ? '2-қадам. Өнімді таңдаңыз' : '2 шаг. Выберите средство';
+    const productsText = isKz ? 'Подходящие средства' : 'Подходящие средства';
+    const noProducts = isKz ? 'Бұл бағытта өнімдер табылмады.' : 'В этом направлении средства не найдены.';
+
+    if (!state.productPickerCategory || !PRODUCT_PICKER_GUIDES.some(g => g.title === state.productPickerCategory)) {
+      state.productPickerCategory = PRODUCT_PICKER_GUIDES[0] ? PRODUCT_PICKER_GUIDES[0].title : null;
+    }
+
+    const activeGuide = PRODUCT_PICKER_GUIDES.find(g => g.title === state.productPickerCategory) || PRODUCT_PICKER_GUIDES[0] || null;
+
     mount.innerHTML = `
-      <div class="productPicker">
-        <div class="productPickerHead">
-          <div>
-            <div class="productPickerTitle">${escapeHtml(title)}</div>
-            <div class="productPickerHint">${escapeHtml(hint)}</div>
-          </div>
+      <div class="objSwitchboard">
+        <div class="productPickerTitle">${escapeHtml(title)}</div>
+        <div class="productPickerHint" style="margin-bottom:12px;">${escapeHtml(hint)}</div>
+        <div class="objWorkspace">
+          <div class="objTabs" id="productDirectionTabs"></div>
+          <div class="objPanels" id="productDirectionPanel"></div>
         </div>
-        <div class="productPickerControls">
-          <input class="productPickerSearch" id="productPickerSearch" placeholder="${escapeHtml(searchPh)}" />
-        </div>
-        <div class="productPickerEmpty" id="productPickerEmpty">${escapeHtml(isKz ? 'Бұл шағым бойынша бағыт табылмады.' : 'По этой жалобе направление не найдено.')}</div>
-        <div class="productPickerGrid active" id="productPickerGrid"></div>
       </div>`;
 
-    const grid = mount.querySelector('#productPickerGrid');
+    const tabsEl = mount.querySelector('#productDirectionTabs');
+    const panelEl = mount.querySelector('#productDirectionPanel');
+
     PRODUCT_PICKER_GUIDES.forEach((guide) => {
-      const card = document.createElement('div');
-      card.className = 'productPickerCard';
-      card.setAttribute('data-picker-text', `${guide.title} ${guide.title_kz || ''} ${(guide.symptoms || []).join(' ')} ${(guide.symptoms_kz || []).join(' ')} ${guide.why || ''} ${guide.why_kz || ''} ${(guide.products || []).join(' ')}`.toLowerCase());
-      card.innerHTML = `
-        <div class="productPickerCardTitle">${escapeHtml(isKz ? (guide.title_kz || guide.title) : guide.title)}</div>
-        <div class="productPickerText">${escapeHtml(isKz ? (guide.why_kz || guide.why) : guide.why)}</div>
-        <div class="productPickerProducts">${(guide.products || []).map(p => buildPickerProductButtonHtml(p)).join('')}</div>`;
-      grid.appendChild(card);
+      const tab = document.createElement('button');
+      tab.type = 'button';
+      tab.className = `objTab ${activeGuide && guide.title === activeGuide.title ? 'active' : ''}`;
+      tab.textContent = isKz ? (guide.title_kz || guide.title) : guide.title;
+      tab.onclick = () => {
+        state.productPickerCategory = guide.title;
+        state.activeKey = null;
+        renderSection();
+      };
+      tabsEl.appendChild(tab);
     });
 
-    mount.querySelectorAll('.productPickerProductBtn').forEach(btn => {
+    if (!activeGuide) {
+      panelEl.innerHTML = `<div class="objPanel"><div class="objEmpty" style="display:block;">${escapeHtml(noProducts)}</div></div>`;
+      return;
+    }
+
+    const productButtons = (activeGuide.products || []).map((label) => {
+      const note = getPickerDeliveryNote(label);
+      return `
+        <span class="productPickerProductWrap" data-delivery-note="${escapeHtml(note)}">
+          <button type="button" class="chip blue" data-product-label="${escapeHtml(label)}" title="${escapeHtml(note)}">${escapeHtml(label)}</button>
+        </span>`;
+    }).join('');
+
+    panelEl.innerHTML = `
+      <div class="objPanel">
+        <div class="objPanelTitle">${escapeHtml(chooseProduct)}: ${escapeHtml(isKz ? (activeGuide.title_kz || activeGuide.title) : activeGuide.title)}</div>
+        <div class="textBlock" style="margin-top:0;">${escapeHtml(isKz ? (activeGuide.why_kz || activeGuide.why) : activeGuide.why)}</div>
+        <div class="productPickerText" style="margin-bottom:8px; font-weight:900;">${escapeHtml(productsText)}</div>
+        <div class="btnGrid" style="margin-top:0;">${productButtons || `<div class="objEmpty" style="display:block;">${escapeHtml(noProducts)}</div>`}</div>
+      </div>`;
+
+    mount.querySelectorAll('[data-product-label]').forEach(btn => {
       btn.onclick = () => openProductFromPicker(btn.getAttribute('data-product-label') || '');
     });
-
-    const search = mount.querySelector('#productPickerSearch');
-    const empty = mount.querySelector('#productPickerEmpty');
-    const updatePicker = () => {
-      const q = search.value.trim().toLowerCase();
-      let visible = 0;
-      mount.querySelectorAll('.productPickerCard').forEach(card => {
-        const show = !q || (card.getAttribute('data-picker-text') || '').includes(q);
-        card.classList.toggle('hidden', !show);
-        if (show) visible += 1;
-      });
-      empty.classList.toggle('active', visible === 0);
-    };
-    search.oninput = updatePicker;
-    updatePicker();
   }
 
   function renderProductsSwitchboard(){
@@ -6562,22 +6577,9 @@ ${TEXT.kz.health_2min}`} }
 
     if (!restoredReplica) {
       if (s.id === 'products') {
-        const preferredGroup = ensureProductCategory();
-        const hasVisibleInPreferred = preferredGroup && getVisibleProductItems(preferredGroup).length;
-        const fallbackGroup = PRODUCTS.find(group => getVisibleProductItems(group).length) || preferredGroup;
-        const targetGroup = hasVisibleInPreferred ? preferredGroup : fallbackGroup;
-        const visibleItems = getVisibleProductItems(targetGroup);
-        const firstItem = (visibleItems[0]) || ((targetGroup && targetGroup.items && targetGroup.items[0]) ? targetGroup.items[0] : null);
-        if (targetGroup) state.productCategory = targetGroup.cat;
-        if (firstItem) {
-          setReplica(sectionTitle(s), state.lang === 'kz' ? (firstItem.label_kz || firstItem.label) : firstItem.label, localizedText(firstItem.text, firstItem.label));
-          state.activeKey = `product||${firstItem.label}`;
-          syncReplicaActions(s);
-        } else {
-          replicaMetaEl.textContent = `${sectionTitle(s)} → ${ui('replicaHint')}`;
-          replicaTextEl.textContent = '—';
-          syncReplicaActions(s);
-        }
+        replicaMetaEl.textContent = `${sectionTitle(s)} → Выберите направление и средство`;
+        replicaTextEl.innerHTML = `<div class="productReplicaFormatted"><div class="productReplicaComment"><span class="productReplicaCommentLabel">Подсказка оператору</span><div class="productReplicaCommentBody">Сначала нажмите направление здоровья слева, затем выберите средство. После нажатия на средство здесь откроется готовая презентация товара.</div></div></div>`;
+        syncReplicaActions(s);
       } else if (s.id === 'price' || s.id === 'checkout') {
         openDeliveryChooser(s);
       } else {
